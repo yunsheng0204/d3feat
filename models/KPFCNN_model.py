@@ -196,9 +196,19 @@ class KernelPointFCNN:
         tf.summary.scalar('d_pos', self.ave_d_pos)
         tf.summary.scalar('d_neg', self.ave_d_neg)
         self.merged = tf.summary.merge_all()
-        if self.tensorboard_root != '':
-            self.train_writer = tf.summary.FileWriter(self.tensorboard_root + '/train/')
-            self.val_writer = tf.summary.FileWriter(self.tensorboard_root + '/val/')
+        # if self.tensorboard_root != '':
+        #     self.train_writer = tf.summary.FileWriter(self.tensorboard_root + '/train/')
+        #     self.val_writer = tf.summary.FileWriter(self.tensorboard_root + '/val/')
+        # Always create tensorboard writers when saving is enabled
+        if self.config.saving:
+            tb_root = self.tensorboard_root
+            if tb_root == '':
+                tb_root = os.path.join(self.saving_path, 'tensorboard')
+                os.makedirs(tb_root, exist_ok=True)
+
+            self.train_writer = tf.summary.FileWriter(os.path.join(tb_root, 'train'))
+            self.val_writer = tf.summary.FileWriter(os.path.join(tb_root, 'val'))
+
 
         return
 

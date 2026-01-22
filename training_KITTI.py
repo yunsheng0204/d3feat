@@ -133,7 +133,10 @@ class KITTIConfig(Config):
 
     # Do we nee to save convergence
     saving = True
-    saving_path = None
+    # saving_path = None
+    # saving_path = 'results_kitti/D3Feat_KITTI_exp01'
+    saving_path = 'results_kitti/D3Feat_KITTI_' + time.strftime('%Y%m%d_%H%M%S')
+
 
 
 # ----------------------------------------------------------------------------------------------------------------------

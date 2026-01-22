@@ -237,12 +237,30 @@ if __name__ == '__main__':
 
     result_ransac = execute_global_registration(src_keypts, tgt_keypts, src_features, tgt_features, 0.05)
 
-    # First plot the original state of the point clouds
-    draw_registration_result(src_pcd, tgt_pcd, np.identity(4))
+    #############################
+    # ===== Save point clouds for offline visualization =====
 
-    # Plot point clouds after registration
-    draw_registration_result(src_pcd, tgt_pcd, result_ransac.transformation)
-    print(result_ransac)
+    # Copy point clouds (avoid in-place modification)
+    src_pcd_copy = copy.deepcopy(src_pcd)
+    tgt_pcd_copy = copy.deepcopy(tgt_pcd)
+
+    # Apply estimated transformation to source point cloud
+    src_pcd_copy.transform(result_ransac.transformation)
+
+    # Save to ply files
+    open3d.io.write_point_cloud("demo_data/src_registered.ply", src_pcd_copy)
+    open3d.io.write_point_cloud("demo_data/tgt.ply", tgt_pcd_copy)
+
+    print("[INFO] Saved demo_data/src_registered.ply and demo_data/tgt.ply")
+
+    #############################
+
+    # # First plot the original state of the point clouds
+    # draw_registration_result(src_pcd, tgt_pcd, np.identity(4))
+
+    # # Plot point clouds after registration
+    # draw_registration_result(src_pcd, tgt_pcd, result_ransac.transformation)
+    # print(result_ransac)
 
     # Visualize the detected keypts on src_pcd and tgt_pcd
     box_list = []
@@ -255,7 +273,7 @@ if __name__ == '__main__':
 
     open3d.estimate_normals(tgt_pcd)
     tgt_pcd.paint_uniform_color([0, 0.651, 0.929])
-    open3d.draw_geometries([tgt_pcd] + box_list)
+    # open3d.draw_geometries([tgt_pcd] + box_list)
 
     box_list = []
     top_k = np.argsort(src_scores, axis=0)[-50:]
@@ -267,4 +285,4 @@ if __name__ == '__main__':
 
     open3d.estimate_normals(src_pcd)
     src_pcd.paint_uniform_color([1, 0.706, 0])
-    open3d.draw_geometries([src_pcd] + box_list)
+    # open3d.draw_geometries([src_pcd] + box_list)

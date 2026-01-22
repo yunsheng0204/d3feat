@@ -64,7 +64,7 @@ class KITTIDataset(Dataset):
         self.network_model = 'descriptor'
         self.num_threads = input_threads
         self.load_test = load_test
-        self.root = 'data/kitti/'
+        self.root = 'data/kitti/dataset'
         self.icp_path = 'data/kitti/icp'
         self.voxel_size = first_subsampling_dl
         self.matching_search_voxel_size = first_subsampling_dl * 1.5
