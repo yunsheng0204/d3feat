@@ -161,6 +161,8 @@ class ModelTester:
             self.saver.restore(self.sess, restore_snap)
             print("Model restored from " + restore_snap)
             self.experiment_str = restore_snap.split("_")[-1][:8] + "-" + restore_snap.split("-")[-1]
+            self.train_name = os.path.basename(os.path.dirname(restore_snap))
+
         # for i, var in enumerate(my_vars):
         # print(i, var.name)
         # for v in my_vars:
@@ -238,10 +240,12 @@ class ModelTester:
         use_random_points = False
         if use_random_points:
             num_keypts = 5000
-            icp_save_path = f'geometric_registration_kitti/D3Feat_{self.experiment_str}-rand{num_keypts}'
+            # icp_save_path = f'geometric_registration_kitti/D3Feat_{self.experiment_str}-rand{num_keypts}'
+            icp_save_path = f'geometric_registration_kitti/{self.train_name}-rand{num_keypts}'
         else:
             num_keypts = 250
-            icp_save_path = f'geometric_registration_kitti/D3Feat_{self.experiment_str}-pred{num_keypts}'
+            # icp_save_path = f'geometric_registration_kitti/D3Feat_{self.experiment_str}-pred{num_keypts}'
+            icp_save_path = f'geometric_registration_kitti/{self.train_name}-pred{num_keypts}'
         if not exists(icp_save_path):
             makedirs(icp_save_path)
 
