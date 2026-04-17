@@ -243,7 +243,8 @@ class ModelTester:
             # icp_save_path = f'geometric_registration_kitti/D3Feat_{self.experiment_str}-rand{num_keypts}'
             icp_save_path = f'geometric_registration_kitti/{self.train_name}-rand{num_keypts}'
         else:
-            num_keypts = 250
+            num_keypts = 512
+            # num_keypts = 250
             # icp_save_path = f'geometric_registration_kitti/D3Feat_{self.experiment_str}-pred{num_keypts}'
             icp_save_path = f'geometric_registration_kitti/{self.train_name}-pred{num_keypts}'
         if not exists(icp_save_path):
@@ -318,16 +319,23 @@ class ModelTester:
                 )
                 # print(ransac_result)
                 T_ransac = ransac_result.transformation.astype(np.float32)
+                T_gth = inputs['trans']
+                # np.savez(join(icp_save_path, filename),
+                #          trans=T_ransac,
+                #          anc_pts=anc_points,
+                #          pos_pts=pos_points,
+                #          anc_scores=anc_scores,
+                #          pos_scores=pos_scores
+                #          )
                 np.savez(join(icp_save_path, filename),
-                         trans=T_ransac,
-                         anc_pts=anc_points,
-                         pos_pts=pos_points,
-                         anc_scores=anc_scores,
-                         pos_scores=pos_scores
-                         )
+                    trans=T_gth.astype(np.float32),
+                    anc_pts=anc_points,
+                    pos_pts=pos_points,
+                    anc_scores=anc_scores,
+                    pos_scores=pos_scores
+)
             reg_timer.toc()
 
-            T_gth = inputs['trans']
             # loss_ransac = corr_dist(T_ransac, T_gth, anc_points, pos_points, weight=None, max_dist=1)
             loss_ransac = 0
             rte = np.linalg.norm(T_ransac[:3, 3] - T_gth[:3, 3])

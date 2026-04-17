@@ -1,0 +1,2 @@
+python training_KITTI.py
+python test_kitti.py
