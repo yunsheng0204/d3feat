@@ -1,0 +1,4 @@
+cd /home/code-server/D3Feat/geometric_registration_kitti
+mv snapshots-pred512 D3Feat_snapshots-pred512
+cd ../repeatability
+python evaluate_kitti_our.py D3Feat snapshots-pred512
