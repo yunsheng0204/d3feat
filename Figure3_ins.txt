@@ -1,4 +1,52 @@
+git remote -v
+git add .
+git commit -m ""
+git push yunsheng master
+
+
+python training_KITTI.py
+去 tester.py 內 chosen_log = 'results_kitti/D3Feat_KITTI_20260417_073301' 改 Log 路徑
+
 cd /home/code-server/D3Feat/geometric_registration_kitti
 mv snapshots-pred512 D3Feat_snapshots-pred512
 cd ../repeatability
 python evaluate_kitti_our.py D3Feat snapshots-pred512
+
+
+Num_test 555
+Average Repeatability at num_keypts = 4: 0.04099099099099099
+Num_test 555
+Average Repeatability at num_keypts = 8: 0.0518018018018018
+Num_test 555
+Average Repeatability at num_keypts = 16: 0.07612612612612613
+Num_test 555
+Average Repeatability at num_keypts = 32: 0.10681306306306307
+Num_test 555
+Average Repeatability at num_keypts = 64: 0.1481981981981982
+Num_test 555
+Average Repeatability at num_keypts = 128: 0.2004222972972973
+Num_test 555
+Average Repeatability at num_keypts = 256: 0.2704251126126126
+Num_test 555
+Average Repeatability at num_keypts = 512: 0.35281179617117114
+
+
+
+Attention 
+
+Num_test 555
+Average Repeatability at num_keypts = 4: 0.14594594594594595
+Num_test 555
+Average Repeatability at num_keypts = 8: 0.19774774774774775
+Num_test 555
+Average Repeatability at num_keypts = 16: 0.24448198198198198
+Num_test 555
+Average Repeatability at num_keypts = 32: 0.30045045045045043
+Num_test 555
+Average Repeatability at num_keypts = 64: 0.3583051801801802
+Num_test 555
+Average Repeatability at num_keypts = 128: 0.4166807432432432
+Num_test 555
+Average Repeatability at num_keypts = 256: 0.45783361486486485
+Num_test 555
+Average Repeatability at num_keypts = 512: 0.49603392454954953

@@ -258,11 +258,14 @@ class ModelTester:
         feat_timer, reg_timer = Timer(), Timer()
 
         for i in range(dataset.num_test):
+           
             feat_timer.tic()
             ops = [model.anchor_inputs, model.out_features, model.out_scores, model.anc_id, model.pos_id, model.accuracy]
             [inputs, features, scores, anc_id, pos_id, accuracy] = self.sess.run(ops, {model.dropout_prob: 1.0})
             feat_timer.toc()
             # print(accuracy, anc_id)
+
+            T_gth = inputs['trans']
 
             stack_lengths = inputs['stack_lengths']
             first_pcd_indices = np.arange(stack_lengths[0])
@@ -299,14 +302,54 @@ class ModelTester:
             feat0 = make_open3d_feature(anc_features, 32, anc_features.shape[0])
             feat1 = make_open3d_feature(pos_features, 32, pos_features.shape[0])
 
+#             reg_timer.tic()
+#             filename = anc_id.decode("utf-8") + "-" + pos_id.decode("utf-8").split("@")[-1] + '.npz'
+#             if os.path.exists(join(icp_save_path, filename)):
+#                 data = np.load(join(icp_save_path, filename))
+#                 T_ransac = data['trans']
+#                 print(f"Read from {join(icp_save_path, filename)}")
+#             else:
+
+#                 distance_threshold = dataset.voxel_size * 1.0
+#                 ransac_result = open3d.registration.registration_ransac_based_on_feature_matching(
+#                     pcd0, pcd1, feat0, feat1, distance_threshold,
+#                     open3d.registration.TransformationEstimationPointToPoint(False), 4, [
+#                         open3d.registration.CorrespondenceCheckerBasedOnEdgeLength(0.9),
+#                         open3d.registration.CorrespondenceCheckerBasedOnDistance(distance_threshold)
+#                     ],
+#                     open3d.registration.RANSACConvergenceCriteria(50000, 1000)
+#                     # open3d.registration.RANSACConvergenceCriteria(4000000, 10000)
+#                 )
+#                 # print(ransac_result)
+#                 T_ransac = ransac_result.transformation.astype(np.float32)
+                
+#                 # np.savez(join(icp_save_path, filename),
+#                 #          trans=T_ransac,
+#                 #          anc_pts=anc_points,
+#                 #          pos_pts=pos_points,
+#                 #          anc_scores=anc_scores,
+#                 #          pos_scores=pos_scores
+#                 #          )
+#                 np.savez(join(icp_save_path, filename),
+#                     trans=T_gth.astype(np.float32),
+#                     anc_pts=anc_points,
+#                     pos_pts=pos_points,
+#                     anc_scores=anc_scores,
+#                     pos_scores=pos_scores
+# )
+#             reg_timer.toc()
             reg_timer.tic()
             filename = anc_id.decode("utf-8") + "-" + pos_id.decode("utf-8").split("@")[-1] + '.npz'
+            T_gth = inputs['trans']
+
             if os.path.exists(join(icp_save_path, filename)):
                 data = np.load(join(icp_save_path, filename))
-                T_ransac = data['trans']
+                if 'trans_ransac' in data.files:
+                    T_ransac = data['trans_ransac']
+                else:
+                    T_ransac = data['trans']
                 print(f"Read from {join(icp_save_path, filename)}")
             else:
-
                 distance_threshold = dataset.voxel_size * 1.0
                 ransac_result = open3d.registration.registration_ransac_based_on_feature_matching(
                     pcd0, pcd1, feat0, feat1, distance_threshold,
@@ -315,25 +358,18 @@ class ModelTester:
                         open3d.registration.CorrespondenceCheckerBasedOnDistance(distance_threshold)
                     ],
                     open3d.registration.RANSACConvergenceCriteria(50000, 1000)
-                    # open3d.registration.RANSACConvergenceCriteria(4000000, 10000)
                 )
-                # print(ransac_result)
+
                 T_ransac = ransac_result.transformation.astype(np.float32)
-                T_gth = inputs['trans']
-                # np.savez(join(icp_save_path, filename),
-                #          trans=T_ransac,
-                #          anc_pts=anc_points,
-                #          pos_pts=pos_points,
-                #          anc_scores=anc_scores,
-                #          pos_scores=pos_scores
-                #          )
+
                 np.savez(join(icp_save_path, filename),
-                    trans=T_gth.astype(np.float32),
-                    anc_pts=anc_points,
-                    pos_pts=pos_points,
-                    anc_scores=anc_scores,
-                    pos_scores=pos_scores
-)
+                        trans=T_gth.astype(np.float32),          # for repeatability
+                        trans_ransac=T_ransac.astype(np.float32),# for registration
+                        anc_pts=anc_points,
+                        pos_pts=pos_points,
+                        anc_scores=anc_scores,
+                        pos_scores=pos_scores
+                        )
             reg_timer.toc()
 
             # loss_ransac = corr_dist(T_ransac, T_gth, anc_points, pos_points, weight=None, max_dist=1)

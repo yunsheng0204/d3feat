@@ -101,15 +101,39 @@ def assemble_FCNN_blocks(inputs, config, dropout_prob):
     depth_wise_max = tf.reduce_max(features, axis=1, keepdims=True)  # [n_points, 1]
     depth_wise_max_score = features / (1e-6 + depth_wise_max)  # [n_points, 64]
 
+
+    ### edit by yunsheng
+    # all_score = local_max_score * depth_wise_max_score
+    # # use the max score among channel to be the score of a single point. 
+    # score = tf.reduce_max(all_score, axis=1, keepdims=True)  # [n_points, 1]
+
+    # # hard selection (used during test)
+    # # local_max = tf.reduce_max(neighbor_features, axis=1)
+    # # is_local_max = tf.equal(features, local_max)
+    # # is_local_max = tf.Print(is_local_max, [tf.reduce_sum(tf.cast(is_local_max, tf.int32))], message='num of local max')
+    # # detected = tf.reduce_max(tf.cast(is_local_max, tf.float32), axis=1, keepdims=True)
+    # # score = score * detected
+
+    # return backup_features, score[:-1, :]
+
+    ### edit by yunsheng
+    ### edit by yunsheng
+    ### edit by yunsheng
+
     all_score = local_max_score * depth_wise_max_score
-    # use the max score among channel to be the score of a single point. 
-    score = tf.reduce_max(all_score, axis=1, keepdims=True)  # [n_points, 1]
+    score = tf.reduce_max(all_score, axis=1, keepdims=True)  # [n_points+1, 1]
 
-    # hard selection (used during test)
-    # local_max = tf.reduce_max(neighbor_features, axis=1)
-    # is_local_max = tf.equal(features, local_max)
-    # is_local_max = tf.Print(is_local_max, [tf.reduce_sum(tf.cast(is_local_max, tf.int32))], message='num of local max')
-    # detected = tf.reduce_max(tf.cast(is_local_max, tf.float32), axis=1, keepdims=True)
-    # score = score * detected
+    # remove shadow point
+    score = score[:-1, :]   # [n_points, 1]
 
-    return backup_features, score[:-1, :]
+    # attention branch
+    with tf.variable_scope('attention_head'):
+        attn = tf.layers.dense(backup_features, 1, name='attn_fc')
+        attn = tf.nn.sigmoid(attn)
+
+    # reweight keypoint score
+    score = score * attn
+
+    return backup_features, score
+
+    ### edit by yunsheng

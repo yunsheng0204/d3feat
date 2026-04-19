@@ -98,7 +98,11 @@ def test_caller(path, step_ind, on_val):
 if __name__ == '__main__':
 
     # Default is last log and last snapshot
-    chosen_log = 'last_KITTI'
+    # chosen_log = 'last_KITTI'
+
+    ## edited by yunsheng log path
+    chosen_log = 'results_kitti/D3Feat_KITTI_20260417_073301'
+    # chosen_log = 'results_kitti/Log_11011605'
     chosen_snapshot = -1
     on_val = True
 
@@ -110,16 +114,25 @@ if __name__ == '__main__':
     # Dataset name
     test_dataset = 'KITTI'
 
-    # List all training logs
-    logs = np.sort([os.path.join('results_kitti', f) for f in os.listdir('results_kitti') if f.startswith('Log')])
-    # Find the last log of asked dataset or manually specify the log 
-    for log in logs[::-1]:
-        log_config = Config()
-        log_config.load(log)
-        if log_config.dataset.startswith(test_dataset):
-            chosen_log = log
-            break
+    # # List all training logs
+    # logs = np.sort([os.path.join('results_kitti', f) for f in os.listdir('results_kitti') if f.startswith('Log')])
+    # # Find the last log of asked dataset or manually specify the log 
+    # for log in logs[::-1]:
+    #     log_config = Config()
+    #     log_config.load(log)
+    #     if log_config.dataset.startswith(test_dataset):
+    #         chosen_log = log
+    #         break
     # chosen_log = `results_kitti/Log_`
+
+    if chosen_log is None:
+        logs = np.sort([os.path.join('results_kitti', f) for f in os.listdir('results_kitti') if f.startswith('Log')])
+        for log in logs[::-1]:
+            log_config = Config()
+            log_config.load(log)
+            if log_config.dataset.startswith(test_dataset):
+                chosen_log = log
+                break
 
     # Check if log exists
     if not os.path.exists(chosen_log):
