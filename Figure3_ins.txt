@@ -1,7 +1,10 @@
 git remote -v
 git add .
-git commit -m ""
+git commit -m "Add Figure"
 git push yunsheng master
+
+
+python plot.py
 
 
 python training_KITTI.py
