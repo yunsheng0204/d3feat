@@ -11,20 +11,24 @@ pip install numpy scipy scikit-learn
 
 git remote -v
 git add .
-git commit -m ""
+git commit -m "LEVEL2"
 git push yunsheng master
 
 
 python plot.py
 
 
+conda activate D3Feat
+cd D3Feat
+cd /home/code-server/D3Feat/geometric_registration_kitti
+rm -r snapshots-pred512 
 python training_KITTI.py
-去 tester.py 內 chosen_log = 'results_kitti/D3Feat_KITTI_20260417_073301' 改 Log 路徑
-
+去 test_kitti.py 內 chosen_log = 'results_kitti/D3Feat_KITTI_20260417_073301' 改 Log 路徑
+python test_kitti.py
 cd /home/code-server/D3Feat/geometric_registration_kitti
 mv snapshots-pred512 D3Feat_snapshots-pred512
 cd ../repeatability
-python evaluate_kitti_our.py D3Feat snapshots-pred512
+python evaluate_kitti_our.py D3Feat D3Feat_snapshots-pred512
 
 
 Num_test 555

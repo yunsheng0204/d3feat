@@ -63,36 +63,46 @@ def assemble_FCNN_blocks(inputs, config, dropout_prob):
             features = tf.concat((features, F[layer]), axis=1)
 
     ### edit by yunsheng add attention backbone LEVEL 2
+    # original feature for descriptor
+    backup_features = tf.nn.l2_normalize(features, axis=1, epsilon=1e-10)
 
-    # ====== Self-Attention (Local) ======
+
+    ### edit by yunsheng add attention backbone LEVEL 2
     with tf.variable_scope('self_attention'):
         neighbor_idx = inputs['neighbors'][0]   # [N, K]
+
         # add shadow point for safe gather
         shadow_features_attn = tf.zeros_like(features[:1, :])
         features_for_attn = tf.concat([features, shadow_features_attn], axis=0)
+
         # gather neighbor features
         neighbor_feat = tf.gather(features_for_attn, neighbor_idx, axis=0)  # [N, K, C]
+
         # central feature
         central_feat = tf.expand_dims(features, axis=1)  # [N, 1, C]
 
         C = features.get_shape().as_list()[1]
-        # Q K V
-        Q = tf.layers.dense(central_feat, C, name='q')   # [N, 1, C]
-        K = tf.layers.dense(neighbor_feat, C, name='k')  # [N, K, C]
+        d = max(C // 4, 8)
+
+        # Q K 降維，V 保持原通道
+        Q = tf.layers.dense(central_feat, d, name='q')   # [N, 1, d]
+        K = tf.layers.dense(neighbor_feat, d, name='k')  # [N, K, d]
         V = tf.layers.dense(neighbor_feat, C, name='v')  # [N, K, C]
+
         # attention score
         attn = tf.reduce_sum(Q * K, axis=-1)             # [N, K]
-        attn = attn / tf.sqrt(tf.cast(C, tf.float32))
+        attn = attn / tf.sqrt(tf.cast(d, tf.float32))
         attn = tf.nn.softmax(attn, axis=-1)
+
         # weighted sum
         attn = tf.expand_dims(attn, axis=-1)             # [N, K, 1]
         new_feat = tf.reduce_sum(attn * V, axis=1)       # [N, C]
-        # residual connection
-        features = features + 0.1 * new_feat
 
-    ### edit by yunsheng add attention backbone LEVEL 2
+        # only for score branch
+        attn_features = features + 0.1 * new_feat
 
-    backup_features = tf.nn.l2_normalize(features, axis=1, epsilon=1e-10)
+    # optional but recommended
+    attn_features = tf.nn.l2_normalize(attn_features, axis=1, epsilon=1e-10)
 
     # Soft Detection Module
     neighbor = inputs['neighbors'][0]  # [n_points, n_neighbors]
@@ -103,33 +113,36 @@ def assemble_FCNN_blocks(inputs, config, dropout_prob):
     first_pcd_length = statcked_length[0]
     second_pcd_length = statcked_length[1]
 
+    # use attn_features for detection branch
+    det_features = attn_features
+
     # add a fake point in the last row for shadow neighbors
-    shadow_features = tf.zeros_like(features[:1, :])
-    features = tf.concat([features, shadow_features], axis=0)
+    shadow_features = tf.zeros_like(det_features[:1, :])
+    det_features = tf.concat([det_features, shadow_features], axis=0)
+
     shadow_neighbor = tf.ones_like(neighbor[:1, :]) * (first_pcd_length + second_pcd_length)
     neighbor = tf.concat([neighbor, shadow_neighbor], axis=0)
 
-    # if training is False:
-    #  normalize the feature to avoid overflow
-    point_cloud_feature0 = tf.reduce_max(tf.gather(features, first_pcd_indices, axis=0))
-    point_cloud_feature1 = tf.reduce_max(tf.gather(features, second_pcd_indices, axis=0))
+    # normalize the feature to avoid overflow
+    point_cloud_feature0 = tf.reduce_max(tf.gather(det_features, first_pcd_indices, axis=0))
+    point_cloud_feature1 = tf.reduce_max(tf.gather(det_features, second_pcd_indices, axis=0))
     max_per_sample = tf.concat([
         tf.cast(tf.ones([first_pcd_length, 1]), tf.float32) * point_cloud_feature0,
         tf.cast(tf.ones([second_pcd_length + 1, 1]), tf.float32) * point_cloud_feature1],
-        axis=0)  # [n_points, 1]
-    features = tf.divide(features, max_per_sample + 1e-6)
+        axis=0)
+    det_features = tf.divide(det_features, max_per_sample + 1e-6)
 
-    # local max score (saliency score)
-    neighbor_features = tf.gather(features, neighbor, axis=0)  # [n_points, n_neighbors, 64]
-    neighbor_features_sum = tf.reduce_sum(neighbor_features, axis=-1)  # [n_points, n_neighbors]
-    neighbor_num = tf.count_nonzero(neighbor_features_sum, axis=-1, keepdims=True)  # [n_points, 1]
+    # local max score
+    neighbor_features = tf.gather(det_features, neighbor, axis=0)
+    neighbor_features_sum = tf.reduce_sum(neighbor_features, axis=-1)
+    neighbor_num = tf.count_nonzero(neighbor_features_sum, axis=-1, keepdims=True)
     neighbor_num = tf.maximum(neighbor_num, 1)
-    mean_features = tf.reduce_sum(neighbor_features, axis=1) / tf.cast(neighbor_num, tf.float32)  # [n_points, 64]
-    local_max_score = tf.math.softplus(features - mean_features)  # [n_points, 64]
+    mean_features = tf.reduce_sum(neighbor_features, axis=1) / tf.cast(neighbor_num, tf.float32)
+    local_max_score = tf.math.softplus(det_features - mean_features)
 
-    # calculate the depth-wise max score
-    depth_wise_max = tf.reduce_max(features, axis=1, keepdims=True)  # [n_points, 1]
-    depth_wise_max_score = features / (1e-6 + depth_wise_max)  # [n_points, 64]
+    # depth-wise max score
+    depth_wise_max = tf.reduce_max(det_features, axis=1, keepdims=True)
+    depth_wise_max_score = det_features / (1e-6 + depth_wise_max)
 
 
     ### edit by yunsheng
@@ -158,11 +171,11 @@ def assemble_FCNN_blocks(inputs, config, dropout_prob):
 
     # attention branch
     with tf.variable_scope('attention_head'):
-        attn = tf.layers.dense(backup_features, 1, name='attn_fc')
-        attn = tf.nn.sigmoid(attn)
+        attn_score = tf.layers.dense(attn_features, 1, name='attn_fc')
+        attn_score = tf.nn.sigmoid(attn_score)
 
     # reweight keypoint score
-    score = score * attn
+    score = score * attn_score
 
     return backup_features, score
 
