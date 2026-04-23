@@ -62,6 +62,36 @@ def assemble_FCNN_blocks(inputs, config, dropout_prob):
             # Concatenate with CNN feature map
             features = tf.concat((features, F[layer]), axis=1)
 
+    ### edit by yunsheng add attention backbone LEVEL 2
+
+    # ====== Self-Attention (Local) ======
+    with tf.variable_scope('self_attention'):
+        neighbor_idx = inputs['neighbors'][0]   # [N, K]
+        # add shadow point for safe gather
+        shadow_features_attn = tf.zeros_like(features[:1, :])
+        features_for_attn = tf.concat([features, shadow_features_attn], axis=0)
+        # gather neighbor features
+        neighbor_feat = tf.gather(features_for_attn, neighbor_idx, axis=0)  # [N, K, C]
+        # central feature
+        central_feat = tf.expand_dims(features, axis=1)  # [N, 1, C]
+
+        C = features.get_shape().as_list()[1]
+        # Q K V
+        Q = tf.layers.dense(central_feat, C, name='q')   # [N, 1, C]
+        K = tf.layers.dense(neighbor_feat, C, name='k')  # [N, K, C]
+        V = tf.layers.dense(neighbor_feat, C, name='v')  # [N, K, C]
+        # attention score
+        attn = tf.reduce_sum(Q * K, axis=-1)             # [N, K]
+        attn = attn / tf.sqrt(tf.cast(C, tf.float32))
+        attn = tf.nn.softmax(attn, axis=-1)
+        # weighted sum
+        attn = tf.expand_dims(attn, axis=-1)             # [N, K, 1]
+        new_feat = tf.reduce_sum(attn * V, axis=1)       # [N, C]
+        # residual connection
+        features = features + 0.1 * new_feat
+
+    ### edit by yunsheng add attention backbone LEVEL 2
+
     backup_features = tf.nn.l2_normalize(features, axis=1, epsilon=1e-10)
 
     # Soft Detection Module

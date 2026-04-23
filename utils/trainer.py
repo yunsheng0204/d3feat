@@ -61,6 +61,14 @@ class ModelTrainer:
         # Tensorflow Saver definition
         my_vars = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='KernelPointNetwork')
         self.saver = tf.train.Saver(my_vars, max_to_keep=100)
+        try:
+            from tensorflow.python.client import device_lib
+            gpus = [x for x in device_lib.list_local_devices() if x.device_type == 'GPU']
+            print(f"[D3Feat] 可用 GPU 數量: {len(gpus)}")
+            for gpu in gpus:
+                print(f"[D3Feat] GPU: {gpu.name}, memory: {gpu.memory_limit // (1024**2)} MB")
+        except Exception as e:
+            print(f"[D3Feat] 無法檢查 GPU 狀態: {e}")
 
         """
         print('*************************************')
@@ -82,11 +90,15 @@ class ModelTrainer:
 
         # Create a session for running Ops on the Graph.
         on_CPU = False
+        import os
+        gpu_id = getattr(model.config, 'gpu_id', 0)
         if on_CPU:
             cProto = tf.ConfigProto(device_count={'GPU': 0})
         else:
-            cProto = tf.ConfigProto(allow_soft_placement=False)
+            cProto = tf.ConfigProto(allow_soft_placement=True)
             cProto.gpu_options.allow_growth = True
+            # 指定使用哪張 GPU
+            os.environ['CUDA_VISIBLE_DEVICES'] = str(gpu_id)
         self.sess = tf.Session(config=cProto)
 
         # Init variables
@@ -95,7 +107,10 @@ class ModelTrainer:
         # Name of the snapshot to restore to (None if you want to start from beginning)
         # restore_snap = join(self.saving_path, 'snapshots/snap-40000')
         if (restore_snap is not None):
-            exclude_vars = ['softmax', 'head_unary_conv', '/fc/', 'offset']
+            ### edit by yunsheng add attention backbone LEVEL 2
+            # exclude_vars = ['softmax', 'head_unary_conv', '/fc/', 'offset']
+            exclude_vars = ['softmax', 'head_unary_conv', '/fc/', 'offset', 'self_attention', 'attention_head']
+            ### edit by yunsheng add attention backbone LEVEL 2
             restore_vars = my_vars
             for exclude_var in exclude_vars:
                 restore_vars = [v for v in restore_vars if exclude_var not in v.name]

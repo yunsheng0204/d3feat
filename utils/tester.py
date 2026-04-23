@@ -139,9 +139,18 @@ class ModelTester:
 
     def __init__(self, model, restore_snap=None):
 
-        # Tensorflow Saver definition
+        ### edit by yunsheng add attention backbone LEVEL 2
+        # # Tensorflow Saver definition
+        # my_vars = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='KernelPointNetwork')
+        # self.saver = tf.train.Saver(my_vars, max_to_keep=100)
+        ### edit by yunsheng add attention backbone LEVEL 2
+
+        ### edit by yunsheng add attention backbone LEVEL 2
+        # 只載入舊的變數（排除 self_attention）
         my_vars = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='KernelPointNetwork')
-        self.saver = tf.train.Saver(my_vars, max_to_keep=100)
+        vars_to_restore = [v for v in my_vars if 'self_attention' not in v.name]
+        self.saver = tf.train.Saver(vars_to_restore, max_to_keep=100)
+        ### edit by yunsheng add attention backbone LEVEL 2
 
         # Create a session for running Ops on the Graph.
         on_CPU = False
