@@ -98,11 +98,7 @@ def assemble_FCNN_blocks(inputs, config, dropout_prob):
         attn = tf.expand_dims(attn, axis=-1)             # [N, K, 1]
         new_feat = tf.reduce_sum(attn * V, axis=1)       # [N, C]
 
-        # only for score branch
-        attn_features = features + 0.1 * new_feat
 
-    # optional but recommended
-    attn_features = tf.nn.l2_normalize(attn_features, axis=1, epsilon=1e-10)
 
     # Soft Detection Module
     neighbor = inputs['neighbors'][0]  # [n_points, n_neighbors]
@@ -114,7 +110,7 @@ def assemble_FCNN_blocks(inputs, config, dropout_prob):
     second_pcd_length = statcked_length[1]
 
     # use attn_features for detection branch
-    det_features = attn_features
+    det_features = features
 
     # add a fake point in the last row for shadow neighbors
     shadow_features = tf.zeros_like(det_features[:1, :])
@@ -169,13 +165,17 @@ def assemble_FCNN_blocks(inputs, config, dropout_prob):
     # remove shadow point
     score = score[:-1, :]   # [n_points, 1]
 
+    with tf.variable_scope('context_head'):
+        context_weight = tf.layers.dense(new_feat, 1, name='context_fc')
+        context_weight = tf.nn.sigmoid(context_weight)
+
     # attention branch
     with tf.variable_scope('attention_head'):
-        attn_score = tf.layers.dense(attn_features, 1, name='attn_fc')
+        attn_score = tf.layers.dense(backup_features, 1, name='attn_fc')
         attn_score = tf.nn.sigmoid(attn_score)
 
     # reweight keypoint score
-    score = score * attn_score
+    score = score * attn_score * context_weight
 
     return backup_features, score
 

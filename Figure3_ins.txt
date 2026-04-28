@@ -11,7 +11,7 @@ pip install numpy scipy scikit-learn
 
 git remote -v
 git add .
-git commit -m "LEVEL2"
+git commit -m ""
 git push yunsheng master
 
 
@@ -20,6 +20,8 @@ python plot.py
 
 conda activate D3Feat
 cd D3Feat
+
+
 cd /home/code-server/D3Feat/geometric_registration_kitti
 rm -r snapshots-pred512 
 python training_KITTI.py
@@ -78,4 +80,22 @@ LEVEL 2 modify tester.py, D3Feat.py training_KITTI.py trainer.py
 Validation : 98.0% (timings : 643.21 0.01)
 KITTI Epoch 200: desc_loss = 1.226 det_loss = 0.000 accuracy = 34.42%  d_pos = 0.505 d_neg = 1.097
 (D3Feat) root@env-configs-kevin-env-dev-pod-f96bffcbb-srj4d:/home/code-server/D3Feat# 
+training 完
+KITTI Epoch 200: desc_loss = 1.809 det_loss = 0.000 accuracy = 1.42%  d_pos = 0.219 d_neg = 0.268
 
+Num_test 555
+Average Repeatability at num_keypts = 4: 0.012162162162162163
+Num_test 555
+Average Repeatability at num_keypts = 8: 0.022747747747747748
+Num_test 555
+Average Repeatability at num_keypts = 16: 0.04121621621621622
+Num_test 555
+Average Repeatability at num_keypts = 32: 0.06266891891891892
+Num_test 555
+Average Repeatability at num_keypts = 64: 0.09512950450450451
+Num_test 555
+Average Repeatability at num_keypts = 128: 0.1362331081081081
+Num_test 555
+Average Repeatability at num_keypts = 256: 0.18997043918918918
+Num_test 555
+Average Repeatability at num_keypts = 512: 0.25455377252252254
