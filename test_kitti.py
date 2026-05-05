@@ -123,7 +123,6 @@ if __name__ == '__main__':
     #     if log_config.dataset.startswith(test_dataset):
     #         chosen_log = log
     #         break
-    # chosen_log = `results_kitti/Log_`
 
     if chosen_log is None:
         logs = np.sort([os.path.join('results_kitti', f) for f in os.listdir('results_kitti') if f.startswith('Log')])

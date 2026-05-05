@@ -196,8 +196,8 @@ if __name__ == '__main__':
 
 
     ### edit by yunsheng add attention backbone LEVEL 2
-    # trainer = ModelTrainer(model)
-    trainer = ModelTrainer(model, restore_snap='results_kitti/Log_11011605/snapshots/snap-61')
+    trainer = ModelTrainer(model)
+    # trainer = ModelTrainer(model, restore_snap='results_kitti/Log_11011605/snapshots/snap-61')
     ### edit by yunsheng add attention backbone LEVEL 2
 
     # trainer = ModelTrainer(model, restore_snap='results_kitti/Log_/snapshots/snap-')

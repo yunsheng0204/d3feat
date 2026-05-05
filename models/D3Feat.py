@@ -68,35 +68,35 @@ def assemble_FCNN_blocks(inputs, config, dropout_prob):
 
 
     ### edit by yunsheng add attention backbone LEVEL 2
-    with tf.variable_scope('self_attention'):
-        neighbor_idx = inputs['neighbors'][0]   # [N, K]
+    # with tf.variable_scope('self_attention'):
+    #     neighbor_idx = inputs['neighbors'][0]   # [N, K]
 
-        # add shadow point for safe gather
-        shadow_features_attn = tf.zeros_like(features[:1, :])
-        features_for_attn = tf.concat([features, shadow_features_attn], axis=0)
+    #     # add shadow point for safe gather
+    #     shadow_features_attn = tf.zeros_like(features[:1, :])
+    #     features_for_attn = tf.concat([features, shadow_features_attn], axis=0)
 
-        # gather neighbor features
-        neighbor_feat = tf.gather(features_for_attn, neighbor_idx, axis=0)  # [N, K, C]
+    #     # gather neighbor features
+    #     neighbor_feat = tf.gather(features_for_attn, neighbor_idx, axis=0)  # [N, K, C]
 
-        # central feature
-        central_feat = tf.expand_dims(features, axis=1)  # [N, 1, C]
+    #     # central feature
+    #     central_feat = tf.expand_dims(features, axis=1)  # [N, 1, C]
 
-        C = features.get_shape().as_list()[1]
-        d = max(C // 4, 8)
+    #     C = features.get_shape().as_list()[1]
+    #     d = max(C // 4, 8)
 
-        # Q K 降維，V 保持原通道
-        Q = tf.layers.dense(central_feat, d, name='q')   # [N, 1, d]
-        K = tf.layers.dense(neighbor_feat, d, name='k')  # [N, K, d]
-        V = tf.layers.dense(neighbor_feat, C, name='v')  # [N, K, C]
+    #     # Q K 降維，V 保持原通道
+    #     Q = tf.layers.dense(central_feat, d, name='q')   # [N, 1, d]
+    #     K = tf.layers.dense(neighbor_feat, d, name='k')  # [N, K, d]
+    #     V = tf.layers.dense(neighbor_feat, C, name='v')  # [N, K, C]
 
-        # attention score
-        attn = tf.reduce_sum(Q * K, axis=-1)             # [N, K]
-        attn = attn / tf.sqrt(tf.cast(d, tf.float32))
-        attn = tf.nn.softmax(attn, axis=-1)
+    #     # attention score
+    #     attn = tf.reduce_sum(Q * K, axis=-1)             # [N, K]
+    #     attn = attn / tf.sqrt(tf.cast(d, tf.float32))
+    #     attn = tf.nn.softmax(attn, axis=-1)
 
-        # weighted sum
-        attn = tf.expand_dims(attn, axis=-1)             # [N, K, 1]
-        new_feat = tf.reduce_sum(attn * V, axis=1)       # [N, C]
+    #     # weighted sum
+    #     attn = tf.expand_dims(attn, axis=-1)             # [N, K, 1]
+    #     new_feat = tf.reduce_sum(attn * V, axis=1)       # [N, C]
 
 
 
@@ -165,9 +165,9 @@ def assemble_FCNN_blocks(inputs, config, dropout_prob):
     # remove shadow point
     score = score[:-1, :]   # [n_points, 1]
 
-    with tf.variable_scope('context_head'):
-        context_weight = tf.layers.dense(new_feat, 1, name='context_fc')
-        context_weight = tf.nn.sigmoid(context_weight)
+    # with tf.variable_scope('context_head'):
+    #     context_weight = tf.layers.dense(new_feat, 1, name='context_fc')
+    #     context_weight = tf.nn.sigmoid(context_weight)
 
     # attention branch
     with tf.variable_scope('attention_head'):
@@ -175,7 +175,8 @@ def assemble_FCNN_blocks(inputs, config, dropout_prob):
         attn_score = tf.nn.sigmoid(attn_score)
 
     # reweight keypoint score
-    score = score * attn_score * context_weight
+    # score = score * attn_score * (1.0 + 0.1 *context_weight)
+    score = score * attn_score
 
     return backup_features, score
 

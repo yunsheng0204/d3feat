@@ -109,7 +109,7 @@ class ModelTrainer:
         if (restore_snap is not None):
             ### edit by yunsheng add attention backbone LEVEL 2
             # exclude_vars = ['softmax', 'head_unary_conv', '/fc/', 'offset']
-            exclude_vars = ['softmax', 'head_unary_conv', '/fc/', 'offset', 'self_attention', 'attention_head']
+            exclude_vars = ['softmax', 'head_unary_conv', '/fc/', 'offset', 'self_attention', 'attention_head', 'context_head']
             ### edit by yunsheng add attention backbone LEVEL 2
             restore_vars = my_vars
             for exclude_var in exclude_vars:
