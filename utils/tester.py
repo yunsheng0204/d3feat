@@ -42,6 +42,37 @@ import json
 #       \******************/
 #
 
+### edited by yunsheng
+def nms_keypoints(points, scores, num_keypts, radius=1.0):
+
+    scores = scores.squeeze()
+    sorted_idx = np.argsort(scores)[::-1]
+
+    selected = []
+
+    for idx in sorted_idx:
+
+        p = points[idx]
+
+        keep = True
+
+        for sel_idx in selected:
+            dist = np.linalg.norm(p - points[sel_idx])
+
+            if dist < radius:
+                keep = False
+                break
+
+        if keep:
+            selected.append(idx)
+
+        if len(selected) >= num_keypts:
+            break
+
+    return np.array(selected, dtype=np.int32)
+### edited by yunsheng
+
+
 def corr_dist(est, gth, xyz0, xyz1, weight=None, max_dist=1):
     xyz0_est = xyz0 @ est[:3, :3].transpose() + est[:3, 3]
     xyz0_gth = xyz0 @ gth[:3, :3].transpose() + gth[:3, 3]
@@ -256,7 +287,7 @@ class ModelTester:
 
         success_meter, loss_meter, rte_meter, rre_meter = AverageMeter(), AverageMeter(), AverageMeter(), AverageMeter()
         feat_timer, reg_timer = Timer(), Timer()
-
+        radius_list = [0.3,0.5,0.8,1.0,1.2,1.5,2.0]
         for i in range(dataset.num_test):
            
             feat_timer.tic()
@@ -285,17 +316,85 @@ class ModelTester:
                 pos_features = features[pos_keypoints_id]
                 anc_scores = scores[anc_keypoints_id]
                 pos_scores = scores[pos_keypoints_id]
+            ### edited by yunsheng
             else:
                 scores_anc_pcd = scores[first_pcd_indices]
                 scores_pos_pcd = scores[second_pcd_indices]
-                anc_keypoints_id = np.argsort(scores_anc_pcd, axis=0)[-num_keypts:].squeeze()
-                pos_keypoints_id = np.argsort(scores_pos_pcd, axis=0)[-num_keypts:].squeeze() + stack_lengths[0]
-                anc_points = inputs['points'][0][anc_keypoints_id]
-                anc_features = features[anc_keypoints_id]
-                anc_scores = scores[anc_keypoints_id]
-                pos_points = inputs['points'][0][pos_keypoints_id]
-                pos_features = features[pos_keypoints_id]
-                pos_scores = scores[pos_keypoints_id]
+
+                anc_points_all = inputs['points'][0][first_pcd_indices]
+                pos_points_all = inputs['points'][0][second_pcd_indices]
+
+                best_success = -1
+                best_radius = None
+                best_result = None
+
+                for radius in radius_list:
+
+                    anc_keypoints_id = nms_keypoints(
+                        anc_points_all,
+                        scores_anc_pcd,
+                        num_keypts=num_keypts,
+                        radius=radius
+                    )
+
+                    pos_keypoints_local = nms_keypoints(
+                        pos_points_all,
+                        scores_pos_pcd,
+                        num_keypts=num_keypts,
+                        radius=radius
+                    )
+
+                    pos_keypoints_id = pos_keypoints_local + stack_lengths[0]
+
+                    anc_points = inputs['points'][0][anc_keypoints_id]
+                    anc_features = features[anc_keypoints_id]
+                    anc_scores = scores[anc_keypoints_id]
+
+                    pos_points = inputs['points'][0][pos_keypoints_id]
+                    pos_features = features[pos_keypoints_id]
+                    pos_scores = scores[pos_keypoints_id]
+
+                    pcd0 = make_open3d_point_cloud(anc_points)
+                    pcd1 = make_open3d_point_cloud(pos_points)
+                    feat0 = make_open3d_feature(anc_features, 32, anc_features.shape[0])
+                    feat1 = make_open3d_feature(pos_features, 32, pos_features.shape[0])
+
+                    distance_threshold = dataset.voxel_size * 1.0
+
+                    ransac_result = open3d.registration.registration_ransac_based_on_feature_matching(
+                        pcd0, pcd1, feat0, feat1, distance_threshold,
+                        open3d.registration.TransformationEstimationPointToPoint(False), 4, [
+                            open3d.registration.CorrespondenceCheckerBasedOnEdgeLength(0.9),
+                            open3d.registration.CorrespondenceCheckerBasedOnDistance(distance_threshold)
+                        ],
+                        open3d.registration.RANSACConvergenceCriteria(50000, 1000)
+                    )
+
+                    T_ransac = ransac_result.transformation.astype(np.float32)
+
+                    rte = np.linalg.norm(T_ransac[:3, 3] - T_gth[:3, 3])
+                    rre = np.arccos((np.trace(T_ransac[:3, :3].transpose() @ T_gth[:3, :3]) - 1) / 2)
+
+                    success = 0
+
+                    if rte < 2 and not np.isnan(rre) and rre < np.pi / 180 * 5:
+                        success = 1
+
+                    print(f"Radius {radius} -> Success: {success}, RTE: {rte}, RRE: {rre * 180 / np.pi}")
+            ### edited by yunsheng
+            ### edited by yunsheng
+            # else:
+            #     scores_anc_pcd = scores[first_pcd_indices]
+            #     scores_pos_pcd = scores[second_pcd_indices]
+            #     anc_keypoints_id = np.argsort(scores_anc_pcd, axis=0)[-num_keypts:].squeeze()
+            #     pos_keypoints_id = np.argsort(scores_pos_pcd, axis=0)[-num_keypts:].squeeze() + stack_lengths[0]
+            #     anc_points = inputs['points'][0][anc_keypoints_id]
+            #     anc_features = features[anc_keypoints_id]
+            #     anc_scores = scores[anc_keypoints_id]
+            #     pos_points = inputs['points'][0][pos_keypoints_id]
+            #     pos_features = features[pos_keypoints_id]
+            #     pos_scores = scores[pos_keypoints_id]
+            ### edited by yunsheng
 
             pcd0 = make_open3d_point_cloud(anc_points)
             pcd1 = make_open3d_point_cloud(pos_points)
