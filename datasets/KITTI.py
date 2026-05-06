@@ -93,7 +93,14 @@ class KITTIDataset(Dataset):
             Ts = all_pos[:, :3, 3]
             pdist = (Ts.reshape(1, -1, 3) - Ts.reshape(-1, 1, 3)) ** 2
             pdist = np.sqrt(pdist.sum(-1))
+            ### edited by yunsheng
             more_than_10 = pdist > 10
+            ### edited by yunsheng
+
+            ### edited by yunsheng
+            # more_than_10 = pdist > 20
+            ### edited by yunsheng
+            
             curr_time = inames[0]
             while curr_time in inames:
                 next_time = np.where(more_than_10[curr_time][curr_time:curr_time + 100])[0]
@@ -121,7 +128,13 @@ class KITTIDataset(Dataset):
             print("Num_val", self.num_val)
         else:
             # pair (8, 15, 58) is wrong.
-            self.files[split].remove((8, 15, 58))
+            # self.files[split].remove((8, 15, 58))
+            # self.num_test = len(self.files[split])
+            # print("Num_test", self.num_test)
+            bad_pair = (8, 15, 58)
+            if bad_pair in self.files[split]:
+                self.files[split].remove(bad_pair)
+
             self.num_test = len(self.files[split])
             print("Num_test", self.num_test)
 
