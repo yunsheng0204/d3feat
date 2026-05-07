@@ -42,7 +42,7 @@ import json
 #       \******************/
 #
 
-### edited by yunsheng
+### edited by yunsheng NMS
 def nms_keypoints(points, scores, num_keypts, radius=1.0):
 
     scores = scores.squeeze()
@@ -70,7 +70,7 @@ def nms_keypoints(points, scores, num_keypts, radius=1.0):
             break
 
     return np.array(selected, dtype=np.int32)
-### edited by yunsheng
+### edited by yunsheng NMS
 
 
 def corr_dist(est, gth, xyz0, xyz1, weight=None, max_dist=1):
@@ -287,7 +287,20 @@ class ModelTester:
 
         success_meter, loss_meter, rte_meter, rre_meter = AverageMeter(), AverageMeter(), AverageMeter(), AverageMeter()
         feat_timer, reg_timer = Timer(), Timer()
-        radius_list = [0.3,0.5,0.8,1.0,1.2,1.5,2.0]
+
+        ### edited by yunsheng NMS
+        radius_list = [0.3, 0.5, 0.8, 1.0, 1.2, 1.5, 2.0]
+        radius_results = {}
+
+        for radius in radius_list:
+            radius_results[radius] = {
+                'success': AverageMeter(),
+                'rte': AverageMeter(),
+                'rre': AverageMeter()
+            }
+
+        ### edited by yunsheng NMS
+
         for i in range(dataset.num_test):
            
             feat_timer.tic()
@@ -375,14 +388,26 @@ class ModelTester:
                     rte = np.linalg.norm(T_ransac[:3, 3] - T_gth[:3, 3])
                     rre = np.arccos((np.trace(T_ransac[:3, :3].transpose() @ T_gth[:3, :3]) - 1) / 2)
 
+                    if rte < 2:
+                        radius_results[radius]['rte'].update(rte)
+
+                    if not np.isnan(rre) and rre < np.pi / 180 * 5:
+                        radius_results[radius]['rre'].update(rre * 180 / np.pi)
+
+                    if rte < 2 and not np.isnan(rre) and rre < np.pi / 180 * 5:
+                        radius_results[radius]['success'].update(1)
+                    else:
+                        radius_results[radius]['success'].update(0)
+
+
                     success = 0
 
                     if rte < 2 and not np.isnan(rre) and rre < np.pi / 180 * 5:
                         success = 1
 
                     print(f"Radius {radius} -> Success: {success}, RTE: {rte}, RRE: {rre * 180 / np.pi}")
-            ### edited by yunsheng
-            ### edited by yunsheng
+            ### edited by yunsheng NMS
+            ### edited by yunsheng NMS
             # else:
             #     scores_anc_pcd = scores[first_pcd_indices]
             #     scores_pos_pcd = scores[second_pcd_indices]
@@ -394,21 +419,61 @@ class ModelTester:
             #     pos_points = inputs['points'][0][pos_keypoints_id]
             #     pos_features = features[pos_keypoints_id]
             #     pos_scores = scores[pos_keypoints_id]
-            ### edited by yunsheng
+            
 
-            pcd0 = make_open3d_point_cloud(anc_points)
-            pcd1 = make_open3d_point_cloud(pos_points)
-            feat0 = make_open3d_feature(anc_features, 32, anc_features.shape[0])
-            feat1 = make_open3d_feature(pos_features, 32, pos_features.shape[0])
+#             pcd0 = make_open3d_point_cloud(anc_points)
+#             pcd1 = make_open3d_point_cloud(pos_points)
+#             feat0 = make_open3d_feature(anc_features, 32, anc_features.shape[0])
+#             feat1 = make_open3d_feature(pos_features, 32, pos_features.shape[0])
 
+# #             reg_timer.tic()
+# #             filename = anc_id.decode("utf-8") + "-" + pos_id.decode("utf-8").split("@")[-1] + '.npz'
+# #             if os.path.exists(join(icp_save_path, filename)):
+# #                 data = np.load(join(icp_save_path, filename))
+# #                 T_ransac = data['trans']
+# #                 print(f"Read from {join(icp_save_path, filename)}")
+# #             else:
+
+# #                 distance_threshold = dataset.voxel_size * 1.0
+# #                 ransac_result = open3d.registration.registration_ransac_based_on_feature_matching(
+# #                     pcd0, pcd1, feat0, feat1, distance_threshold,
+# #                     open3d.registration.TransformationEstimationPointToPoint(False), 4, [
+# #                         open3d.registration.CorrespondenceCheckerBasedOnEdgeLength(0.9),
+# #                         open3d.registration.CorrespondenceCheckerBasedOnDistance(distance_threshold)
+# #                     ],
+# #                     open3d.registration.RANSACConvergenceCriteria(50000, 1000)
+# #                     # open3d.registration.RANSACConvergenceCriteria(4000000, 10000)
+# #                 )
+# #                 # print(ransac_result)
+# #                 T_ransac = ransac_result.transformation.astype(np.float32)
+                
+# #                 # np.savez(join(icp_save_path, filename),
+# #                 #          trans=T_ransac,
+# #                 #          anc_pts=anc_points,
+# #                 #          pos_pts=pos_points,
+# #                 #          anc_scores=anc_scores,
+# #                 #          pos_scores=pos_scores
+# #                 #          )
+# #                 np.savez(join(icp_save_path, filename),
+# #                     trans=T_gth.astype(np.float32),
+# #                     anc_pts=anc_points,
+# #                     pos_pts=pos_points,
+# #                     anc_scores=anc_scores,
+# #                     pos_scores=pos_scores
+# # )
+# #             reg_timer.toc()
 #             reg_timer.tic()
 #             filename = anc_id.decode("utf-8") + "-" + pos_id.decode("utf-8").split("@")[-1] + '.npz'
+#             T_gth = inputs['trans']
+
 #             if os.path.exists(join(icp_save_path, filename)):
 #                 data = np.load(join(icp_save_path, filename))
-#                 T_ransac = data['trans']
+#                 if 'trans_ransac' in data.files:
+#                     T_ransac = data['trans_ransac']
+#                 else:
+#                     T_ransac = data['trans']
 #                 print(f"Read from {join(icp_save_path, filename)}")
 #             else:
-
 #                 distance_threshold = dataset.voxel_size * 1.0
 #                 ransac_result = open3d.registration.registration_ransac_based_on_feature_matching(
 #                     pcd0, pcd1, feat0, feat1, distance_threshold,
@@ -417,78 +482,42 @@ class ModelTester:
 #                         open3d.registration.CorrespondenceCheckerBasedOnDistance(distance_threshold)
 #                     ],
 #                     open3d.registration.RANSACConvergenceCriteria(50000, 1000)
-#                     # open3d.registration.RANSACConvergenceCriteria(4000000, 10000)
 #                 )
-#                 # print(ransac_result)
+
 #                 T_ransac = ransac_result.transformation.astype(np.float32)
-                
-#                 # np.savez(join(icp_save_path, filename),
-#                 #          trans=T_ransac,
-#                 #          anc_pts=anc_points,
-#                 #          pos_pts=pos_points,
-#                 #          anc_scores=anc_scores,
-#                 #          pos_scores=pos_scores
-#                 #          )
+
 #                 np.savez(join(icp_save_path, filename),
-#                     trans=T_gth.astype(np.float32),
-#                     anc_pts=anc_points,
-#                     pos_pts=pos_points,
-#                     anc_scores=anc_scores,
-#                     pos_scores=pos_scores
-# )
+#                         trans=T_gth.astype(np.float32),          # for repeatability
+#                         trans_ransac=T_ransac.astype(np.float32),# for registration
+#                         anc_pts=anc_points,
+#                         pos_pts=pos_points,
+#                         anc_scores=anc_scores,
+#                         pos_scores=pos_scores
+#                         )
 #             reg_timer.toc()
-            reg_timer.tic()
-            filename = anc_id.decode("utf-8") + "-" + pos_id.decode("utf-8").split("@")[-1] + '.npz'
-            T_gth = inputs['trans']
 
-            if os.path.exists(join(icp_save_path, filename)):
-                data = np.load(join(icp_save_path, filename))
-                if 'trans_ransac' in data.files:
-                    T_ransac = data['trans_ransac']
-                else:
-                    T_ransac = data['trans']
-                print(f"Read from {join(icp_save_path, filename)}")
-            else:
-                distance_threshold = dataset.voxel_size * 1.0
-                ransac_result = open3d.registration.registration_ransac_based_on_feature_matching(
-                    pcd0, pcd1, feat0, feat1, distance_threshold,
-                    open3d.registration.TransformationEstimationPointToPoint(False), 4, [
-                        open3d.registration.CorrespondenceCheckerBasedOnEdgeLength(0.9),
-                        open3d.registration.CorrespondenceCheckerBasedOnDistance(distance_threshold)
-                    ],
-                    open3d.registration.RANSACConvergenceCriteria(50000, 1000)
-                )
+#             # loss_ransac = corr_dist(T_ransac, T_gth, anc_points, pos_points, weight=None, max_dist=1)
+#             loss_ransac = 0
+#             rte = np.linalg.norm(T_ransac[:3, 3] - T_gth[:3, 3])
+#             rre = np.arccos((np.trace(T_ransac[:3, :3].transpose() @ T_gth[:3, :3]) - 1) / 2)
 
-                T_ransac = ransac_result.transformation.astype(np.float32)
+            # if rte < 2:
+            #     rte_meter.update(rte)
 
-                np.savez(join(icp_save_path, filename),
-                        trans=T_gth.astype(np.float32),          # for repeatability
-                        trans_ransac=T_ransac.astype(np.float32),# for registration
-                        anc_pts=anc_points,
-                        pos_pts=pos_points,
-                        anc_scores=anc_scores,
-                        pos_scores=pos_scores
-                        )
-            reg_timer.toc()
+            # if not np.isnan(rre) and rre < np.pi / 180 * 5:
+            #     rre_meter.update(rre * 180 / np.pi)
 
-            # loss_ransac = corr_dist(T_ransac, T_gth, anc_points, pos_points, weight=None, max_dist=1)
-            loss_ransac = 0
-            rte = np.linalg.norm(T_ransac[:3, 3] - T_gth[:3, 3])
-            rre = np.arccos((np.trace(T_ransac[:3, :3].transpose() @ T_gth[:3, :3]) - 1) / 2)
+            # if rte < 2 and not np.isnan(rre) and rre < np.pi / 180 * 5:
+            #     success_meter.update(1)
+            # else:
+            #     success_meter.update(0)
+            #     logging.info(f"{anc_id} Failed with RTE: {rte}, RRE: {rre * 180 / np.pi}")
 
-            if rte < 2:
-                rte_meter.update(rte)
+            # loss_meter.update(loss_ransac)
+            ### edited by yunsheng NMS
 
-            if not np.isnan(rre) and rre < np.pi / 180 * 5:
-                rre_meter.update(rre * 180 / np.pi)
 
-            if rte < 2 and not np.isnan(rre) and rre < np.pi / 180 * 5:
-                success_meter.update(1)
-            else:
-                success_meter.update(0)
-                logging.info(f"{anc_id} Failed with RTE: {rte}, RRE: {rre * 180 / np.pi}")
-
-            loss_meter.update(loss_ransac)
+            
 
             if (i + 1) % 10 == 0:
                 logging.info(
@@ -499,9 +528,26 @@ class ModelTester:
                 )
                 feat_timer.reset()
                 reg_timer.reset()
+        ### edited by yunsheng NMS
+        # logging.info(
+        #     f"Total loss: {loss_meter.avg}, RTE: {rte_meter.avg}, var: {rte_meter.var}," +
+        #     f" RRE: {rre_meter.avg}, var: {rre_meter.var}, Success: {success_meter.sum} " +
+        #     f"/ {success_meter.count} ({success_meter.avg * 100} %)"
+        # )
+        ### edited by yunsheng NMS
 
-        logging.info(
-            f"Total loss: {loss_meter.avg}, RTE: {rte_meter.avg}, var: {rte_meter.var}," +
-            f" RRE: {rre_meter.avg}, var: {rre_meter.var}, Success: {success_meter.sum} " +
-            f"/ {success_meter.count} ({success_meter.avg * 100} %)"
-        )
+        ### edited by yunsheng NMS
+        print("\n================ FINAL RESULTS ================\n")
+        for radius in radius_list:
+
+            success_meter = radius_results[radius]['success']
+            rte_meter = radius_results[radius]['rte']
+            rre_meter = radius_results[radius]['rre']
+
+            print(
+                f"Radius {radius} | "
+                f"Success: {success_meter.avg * 100:.2f}% "
+                f"({success_meter.sum}/{success_meter.count}) | "
+                f"RTE: {rte_meter.avg:.4f} | "
+                f"RRE: {rre_meter.avg:.4f}"
+            )
