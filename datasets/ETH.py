@@ -181,9 +181,25 @@ class ETHDataset(Dataset):
                 # # Load points and labels
                 # keypts_id = np.array(keypts_id)
 
+
+                ### edited by yunsheng ETH
+                # points = np.asarray(pcd.points)
+                # print(points.shape)
+
+                # self.anc_points['test'] += [points]
+                # self.ids_list['test'] += [scene + '/' + ind]
+                ### edited by yunsheng ETH
+                ### edited by yunsheng ETH
                 points = np.asarray(pcd.points)
+
+                # limit points for ETH to avoid RAM/GPU OOM
+                if points.shape[0] > 20000:
+                    inds = np.random.choice(points.shape[0], 20000, replace=False)
+                    points = points[inds]
+
                 print(points.shape)
 
                 self.anc_points['test'] += [points]
                 self.ids_list['test'] += [scene + '/' + ind]
+                ### edited by yunsheng ETH
         return

@@ -41,6 +41,81 @@ cd ..
 
 
 
+ETH
+nvidia-smi
+export CUDA_VISIBLE_DEVICES=?
+去 test_eth.py 內 改 Log 路徑
+chosen_log = 'results_kitti/ ' 
+python test_eth.py
+改 Log 名稱
+mv geometric_registration/D3Feat_level1 geometric_registration_eth/
+cd /home/code-server/D3Feat/geometric_registration_eth
+export PYTHONPATH=$PYTHONPATH:..
+python evaluate_eth.py D3Feat level1
+
+
+Log_11011605
+Avergae Feature Extraction Time: 9.403865304860203
+
+Finish Evaluation, time: 38.77s
+Correct Match 2, ground truth Match 184
+Recall 1.0869565217391304%
+Average Num Inliners: 1.0
+Average Num Inliner Ratio: 0.066964285
+Correct Match 7, ground truth Match 289
+Recall 2.422145328719723%
+Average Num Inliners: 1.2857142857142858
+Average Num Inliner Ratio: 0.07925948142857142
+Correct Match 0, ground truth Match 115
+Recall 0.0%
+evaluate_eth.py:160: RuntimeWarning: divide by zero encountered in double_scalars
+  ave_num_inliers = np.sum(np.where(result[:, 2] == 1, result[:, 0], np.zeros(result.shape[0]))) / pred_results
+Average Num Inliners: inf
+evaluate_eth.py:162: RuntimeWarning: divide by zero encountered in double_scalars
+  ave_inlier_ratio = np.sum(np.where(result[:, 2] == 1, result[:, 1], np.zeros(result.shape[0]))) / pred_results
+Average Num Inliner Ratio: inf
+Correct Match 3, ground truth Match 125
+Recall 2.4%
+Average Num Inliners: 1.0
+Average Num Inliner Ratio: 0.055670223333333324
+****************************************
+[1.0869565217391304, 2.422145328719723, 0.0, 2.4]
+Avergae Matching Recall: 1.6830294530154277%
+All 8 scene, average recall: 1.4772754626147133%
+All 8 scene, average num inliers: inf
+All 8 scene, average num inliers ratio: inf
+
+
+
+
+D3Feat_KITTI_20260417_073301_level1
+Avergae Feature Extraction Time: 9.604637095422456
+
+Finish Evaluation, time: 37.28s
+Correct Match 2, ground truth Match 184
+Recall 1.0869565217391304%
+Average Num Inliners: 1.5
+Average Num Inliner Ratio: 0.104978355
+Correct Match 2, ground truth Match 289
+Recall 0.6920415224913495%
+Average Num Inliners: 1.0
+Average Num Inliner Ratio: 0.083916085
+Correct Match 2, ground truth Match 115
+Recall 1.7391304347826086%
+Average Num Inliners: 1.0
+Average Num Inliner Ratio: 0.08881579
+Correct Match 1, ground truth Match 125
+Recall 0.8%
+Average Num Inliners: 2.0
+Average Num Inliner Ratio: 0.11212122
+****************************************
+[1.0869565217391304, 0.6920415224913495, 1.7391304347826086, 0.8]
+Avergae Matching Recall: 0.9817671809256662%
+All 8 scene, average recall: 1.0795321197532721%
+All 8 scene, average num inliers: 1.375
+All 8 scene, average num inliers ratio: 0.09745786249999999
+
+
 
 2scenes > 10 meters
 python evaluate_kitti_our.py D3Feat D3Feat_snapshots-pred512
@@ -84,8 +159,29 @@ Total loss: 0.0, RTE: 0.30659270873800615, var: 0.07794979756931188, RRE: 1.1887
 
 NMS
 
+LEVEL1 vs Original 改 test_kitti.py chosen_log 跟 D3Feat.py 的最後 score
 
+Original
+================ FINAL RESULTS ================
 
+Radius 0.3 | Success: 98.74% (548.0/555) | RTE: 0.0929 | RRE: 0.3954
+Radius 0.5 | Success: 98.74% (548.0/555) | RTE: 0.0961 | RRE: 0.4209
+Radius 0.8 | Success: 98.74% (548.0/555) | RTE: 0.1047 | RRE: 0.4535
+Radius 1.0 | Success: 98.74% (548.0/555) | RTE: 0.1177 | RRE: 0.4802
+Radius 1.2 | Success: 98.38% (546.0/555) | RTE: 0.1224 | RRE: 0.5066
+Radius 1.5 | Success: 98.02% (544.0/555) | RTE: 0.1421 | RRE: 0.6043
+Radius 2.0 | Success: 94.95% (527.0/555) | RTE: 0.2096 | RRE: 0.8536
+
+LEVEL1
+================ FINAL RESULTS ================
+
+Radius 0.3 | Success: 94.05% (522.0/555) | RTE: 0.2320 | RRE: 0.8599
+Radius 0.5 | Success: 97.48% (541.0/555) | RTE: 0.2193 | RRE: 0.8434
+Radius 0.8 | Success: 97.12% (539.0/555) | RTE: 0.2492 | RRE: 0.8633
+Radius 1.0 | Success: 97.48% (541.0/555) | RTE: 0.2485 | RRE: 0.8796
+Radius 1.2 | Success: 96.94% (538.0/555) | RTE: 0.2519 | RRE: 0.7992
+Radius 1.5 | Success: 94.77% (526.0/555) | RTE: 0.2529 | RRE: 0.9030
+Radius 2.0 | Success: 90.27% (501.0/555) | RTE: 0.2979 | RRE: 1.0802
 
 2scenes > 20 meters
 

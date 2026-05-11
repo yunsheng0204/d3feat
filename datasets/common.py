@@ -534,10 +534,20 @@ class Dataset:
 
         else:
 
-            if len(self.anc_points['train']) > 0:
+            ### edited by yunsheng ETH
+            # if len(self.anc_points['train']) > 0:
+            #     split = 'train'
+            # else:
+            #     split = 'test'
+            ### edited by yunsheng
+            ### edited by yunsheng
+            if 'train' in self.anc_points and len(self.anc_points['train']) > 0:
                 split = 'train'
-            else:
+            elif 'test' in self.anc_points and len(self.anc_points['test']) > 0:
                 split = 'test'
+            else:
+                raise ValueError('No valid anc_points split found.')
+            ### edited by yunsheng ETH
 
             # Get sizes at training and sort them
             sizes = np.sort([p.shape[0] for p in self.anc_points[split]])
@@ -583,10 +593,21 @@ class Dataset:
 
         else:
 
-            if len(self.anc_points['train']) > 0:
+
+            ### edited by yunsheng ETH
+            # if len(self.anc_points['train']) > 0:
+            #     split = 'train'
+            # else:
+            #     split = 'test'
+            ### edited by yunsheng
+            ### edited by yunsheng
+            if 'train' in self.anc_points and len(self.anc_points['train']) > 0:
                 split = 'train'
-            else:
+            elif 'test' in self.anc_points and len(self.anc_points['test']) > 0:
                 split = 'test'
+            else:
+                raise ValueError('No valid anc_points split found.')
+            ### edited by yunsheng ETH
 
         # Get mapping function
         gen_function, gen_types, gen_shapes = self.get_batch_gen(split, config)
@@ -712,9 +733,16 @@ class Dataset:
         # Initiate neighbors limit with higher bound
         self.neighborhood_limits = np.full(config.num_layers, hist_n, dtype=np.int32)
 
+        ### edited by yunsheng ETH
         # Calibrate max neighbors number
-        self.calibrate_neighbors(config)
+        # self.calibrate_neighbors(config)
+        # print("self.neighborhood:", self.neighborhood_limits)
+        # self.calibrate_neighbors(config)
+        ### edited by yunsheng ETH
+        ### edited by yunsheng ETH
+        self.neighborhood_limits = np.full(config.num_layers, 30, dtype=np.int32)
         print("self.neighborhood:", self.neighborhood_limits)
+        ### edited by yunsheng ETH
 
         ################################
         # Initiate tensorflow parameters
@@ -811,7 +839,8 @@ class Dataset:
         self.neighborhood_limits = np.full(config.num_layers, hist_n, dtype=np.int32)
 
         # Calibrate max neighbors number
-        self.calibrate_neighbors(config)
+        # self.calibrate_neighbors(config)
+        self.neighborhood_limits = np.full(config.num_layers, 20, dtype=np.int32)
         print("self.neighborhood:", self.neighborhood_limits)
 
         ################################

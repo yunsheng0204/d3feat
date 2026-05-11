@@ -32,11 +32,13 @@ def test_caller(path, step_ind, on_val):
     config = Config()
     config.load(path)
     # Should change the parameter of 3DMatch model to adopt to ETH 
-    import pdb
-    pdb.set_trace()
-    config.first_subsampling_dl = 0.05
+    # import pdb
+    # pdb.set_trace()
+    # config.first_subsampling_dl = 0.05
+    config.first_subsampling_dl = 0.5
     config.dataset = 'ETH'
     config.KP_extent = 2
+    config.batch_num = 1
 
     ##################################
     # Change model parameters for test
@@ -104,7 +106,9 @@ def test_caller(path, step_ind, on_val):
 if __name__ == '__main__':
 
     # Default is last log and last snapshot
-    chosen_log = 'last_KITTI'
+    # chosen_log = 'results_kitti/Log_11011605'
+    chosen_log = 'results_kitti/D3Feat_KITTI_20260417_073301_level1'
+    # chosen_log = 'results_kitti/D3Feat_KITTI_20260505_031015_origin'
     chosen_snapshot = -1
     on_val = True
 
