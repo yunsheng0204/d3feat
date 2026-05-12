@@ -41,6 +41,54 @@ cd ..
 
 
 
+
+Oxford
+
+去 test_oxford.py 內 改 Log 路徑
+chosen_log = 'results_kitti/ ' 
+python test_oxford.py
+cd /home/code-server/D3Feat/repeatability
+python evaluate_oxford.py test snapshots-pred512
+cd /home/code-server/D3Feat/geometric_registration_kitti
+mv snapshots-pred512 D3Feat_snapshots-pred512-Qxford-LEVEL1
+cd ..
+
+
+Log_11011605
+Total loss: 0.0, RTE: 0.13510139843410984, var: 0.007902469840515208, RRE: 0.37608554378721526, var: 0.11127327826664632, Success: 98.0 / 99 (98.98989898989899 %)
+Average Repeatability at num_keypts = 4: 0.1717171717171717
+Average Repeatability at num_keypts = 8: 0.2638888888888889
+Average Repeatability at num_keypts = 16: 0.33396464646464646
+Average Repeatability at num_keypts = 32: 0.3939393939393939
+Average Repeatability at num_keypts = 64: 0.48200757575757575
+Average Repeatability at num_keypts = 128: 0.5703125
+Average Repeatability at num_keypts = 256: 0.6815419823232324
+Average Repeatability at num_keypts = 512: 0.7005011047979798
+
+LEVEL1
+Total loss: 0.0, RTE: 0.12812964335007934, var: 0.008074696116619852, RRE: 0.3356224168919669, var: 0.13319798776838415, Success: 98.0 / 99 (98.98989898989899 %)
+Average Repeatability at num_keypts = 4: 0.15656565656565657
+Average Repeatability at num_keypts = 8: 0.19570707070707072
+Average Repeatability at num_keypts = 16: 0.26073232323232326
+Average Repeatability at num_keypts = 32: 0.3314393939393939
+Average Repeatability at num_keypts = 64: 0.4483901515151515
+Average Repeatability at num_keypts = 128: 0.5762310606060606
+Average Repeatability at num_keypts = 256: 0.6903803661616161
+Average Repeatability at num_keypts = 512: 0.7023161300505051
+
+original
+Total loss: 0.0, RTE: 0.14298426086139499, var: 0.01861217877286605, RRE: 0.34210131695447543, var: 0.1288798601129134, Success: 98.0 / 99 (98.98989898989899 %)
+Average Repeatability at num_keypts = 4: 0.14393939393939395
+Average Repeatability at num_keypts = 8: 0.16161616161616163
+Average Repeatability at num_keypts = 16: 0.2297979797979798
+Average Repeatability at num_keypts = 32: 0.28345959595959597
+Average Repeatability at num_keypts = 64: 0.4024621212121212
+Average Repeatability at num_keypts = 128: 0.5359848484848485
+Average Repeatability at num_keypts = 256: 0.6854087752525253
+Average Repeatability at num_keypts = 512: 0.7052162247474747
+
+
+
 ETH
 nvidia-smi
 export CUDA_VISIBLE_DEVICES=?
@@ -52,7 +100,6 @@ mv geometric_registration/D3Feat_level1 geometric_registration_eth/
 cd /home/code-server/D3Feat/geometric_registration_eth
 export PYTHONPATH=$PYTHONPATH:..
 python evaluate_eth.py D3Feat level1
-
 
 Log_11011605
 Avergae Feature Extraction Time: 9.403865304860203
