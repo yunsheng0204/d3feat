@@ -81,27 +81,37 @@ class OxfordKITTIDataset(Dataset):
 
     def prepare_kitti_ply(self, split='test'):
 
-        pair_file = os.path.join(self.root, 'pairs', 'oxford_pairs.txt')
+        if split == 'train':
+            pair_file = os.path.join(self.root, 'pairs', 'train_oxford.txt')
+        elif split == 'val':
+            pair_file = os.path.join(self.root, 'pairs', 'val_oxford.txt')
+        else:
+            pair_file = os.path.join(self.root, 'pairs', 'test_oxford.txt')
 
         with open(pair_file, 'r') as f:
             lines = f.readlines()
 
         for line in lines:
-
             src, tgt, tf = line.strip().split()
 
             self.files[split].append((src, tgt, tf))
 
             src_path = os.path.join(self.root, 'bin', src.replace('.ply', '.bin'))
-
             xyzr = np.fromfile(src_path, dtype=np.float32).reshape(-1, 4)
             xyz = xyzr[:, :3]
 
             self.anc_points[split].append(xyz)
 
-        self.num_test = len(self.files[split])
+        if split == 'train':
+            self.num_train = len(self.files[split])
+            print("Num_train", self.num_train)
+        elif split == 'val':
+            self.num_val = len(self.files[split])
+            print("Num_val", self.num_val)
+        else:
+            self.num_test = len(self.files[split])
+            print("Num_test", self.num_test)
 
-        print("Num_test", self.num_test)
         print("Anc points:", len(self.anc_points[split]))
 
 
@@ -264,7 +274,15 @@ class OxfordKITTIDataset(Dataset):
         unaligned_anc_points = np.array(pcd0.points)
         unaligned_pos_points = np.array(pcd1.points)
 
-        matches = np.array([])
+        if split == 'train' or split == 'val':
+            matching_search_voxel_size = self.matching_search_voxel_size
+            matches = get_matching_indices(pcd0, pcd1, trans, matching_search_voxel_size)
+
+            if len(matches) < 1024:
+                print("Not enough corr:", src_name, tgt_name, len(matches))
+                return (None, None, None, None, None, None, False)
+        else:
+            matches = np.array([])
 
         pcd0.transform(trans)
 
