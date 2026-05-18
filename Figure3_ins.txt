@@ -91,14 +91,72 @@ python test_oxford.py
 cd /home/code-server/D3Feat/repeatability
 python evaluate_oxford.py test snapshots-pred512
 cd /home/code-server/D3Feat/geometric_registration_kitti
-mv snapshots-pred512 D3Feat_snapshots-pred512-Qxford-training-origin
+mv snapshots-pred512 D3Feat_snapshots-pred512-Qxford-training-origin-30
 cd ..
+
+epoch 30
+original
+Total loss: 0.0, RTE: 0.10992806083959294, var: 0.004378464917414535, RRE: 0.2294566149679236, var: 0.04690658232269011, Success: 96.0 / 96 (100.0 %)
+
+Num_test 96
+Anc points: 96
+Average Repeatability at num_keypts = 4: 0.3307291666666667
+Average Repeatability at num_keypts = 8: 0.4036458333333333
+Average Repeatability at num_keypts = 16: 0.4921875
+Average Repeatability at num_keypts = 32: 0.5755208333333334
+Average Repeatability at num_keypts = 64: 0.681640625
+Average Repeatability at num_keypts = 128: 0.7805989583333334
+Average Repeatability at num_keypts = 256: 0.8227945963541666
+Average Repeatability at num_keypts = 512: 0.71630859375
 
 LEVEL1
 
 
+
+
+
+
+epoch 40
 original
+
+Total loss: 0.0, RTE: 0.11562404044161667, var: 0.017558520124837787, RRE: 0.24542894040094218, var: 0.08978116121189478, Success: 96.0 / 96 (100.0 %)
+
+Num_test 96
+Anc points: 96
+Average Repeatability at num_keypts = 4: 0.3307291666666667
+Average Repeatability at num_keypts = 8: 0.3984375
+Average Repeatability at num_keypts = 16: 0.4518229166666667
+Average Repeatability at num_keypts = 32: 0.5227864583333334
+Average Repeatability at num_keypts = 64: 0.63623046875
+Average Repeatability at num_keypts = 128: 0.7549641927083334
+Average Repeatability at num_keypts = 256: 0.8135579427083334
+Average Repeatability at num_keypts = 512: 0.7141316731770834
+
+LEVEL1
+
+Total loss: 0.0, RTE: 0.11003560243261745, var: 0.0035461042498165264, RRE: 0.2239232810196458, var: 0.03250518881536019, Success: 96.0 / 96 (100.0 %)
+
+Num_test 96
+Anc points: 96
+Average Repeatability at num_keypts = 4: 0.2526041666666667
+Average Repeatability at num_keypts = 8: 0.33203125
+Average Repeatability at num_keypts = 16: 0.41015625
+Average Repeatability at num_keypts = 32: 0.5087890625
+Average Repeatability at num_keypts = 64: 0.6181640625
+Average Repeatability at num_keypts = 128: 0.7390950520833334
+Average Repeatability at num_keypts = 256: 0.8056640625
+Average Repeatability at num_keypts = 512: 0.71343994140625
+
+
+
+
+epoch 50
+original
+
 Total loss: 0.0, RTE: 0.11712661487035803, var: 0.004333094576203294, RRE: 0.22389116755820201, var: 0.051843709994143256, Success: 96.0 / 96 (100.0 %)
+
+Num_test 96
+Anc points: 96
 Average Repeatability at num_keypts = 4: 0.3958333333333333
 Average Repeatability at num_keypts = 8: 0.4375
 Average Repeatability at num_keypts = 16: 0.4791666666666667
@@ -107,6 +165,20 @@ Average Repeatability at num_keypts = 64: 0.6640625
 Average Repeatability at num_keypts = 128: 0.769775390625
 Average Repeatability at num_keypts = 256: 0.8142496744791666
 Average Repeatability at num_keypts = 512: 0.7148844401041666
+
+LEVEL1
+Total loss: 0.0, RTE: 0.11305444448104633, var: 0.003942076903355575, RRE: 0.21619226921298654, var: 0.03509252244118004, Success: 96.0 / 96 (100.0 %)
+
+Average Repeatability at num_keypts = 4: 0.5338541666666666
+Average Repeatability at num_keypts = 8: 0.6575520833333334
+Average Repeatability at num_keypts = 16: 0.7571614583333334
+Average Repeatability at num_keypts = 32: 0.8424479166666666
+Average Repeatability at num_keypts = 64: 0.9153645833333334
+Average Repeatability at num_keypts = 128: 0.8456217447916666
+Average Repeatability at num_keypts = 256: 0.7980550130208334
+Average Repeatability at num_keypts = 512: 0.6980794270833334
+
+
 
 
 KITTI_Oxford
