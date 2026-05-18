@@ -34,26 +34,82 @@ mv snapshots-pred512 D3Feat_snapshots-pred512
 cd ../repeatability
 python evaluate_kitti_our.py D3Feat D3Feat_snapshots-pred512
 
-改 snapshots 名稱
+# 改 snapshots 名稱
 cd /home/code-server/D3Feat/geometric_registration_kitti
-mv D3Feat_snapshots-pred512 D3Feat_snapshots-pred512-LEVEL1
+mv D3Feat_snapshots-pred512 D3Feat_snapshots-pred512-unknown
 cd ..
 
+KITTI
+
+origin
+Num_test 555
+Total loss: 0.0, RTE: 0.5260317012259405, var: 0.17335420380938937, RRE: 1.7161952483824467, var: 1.6324688191002905, Success: 62.0 / 555 (11.17117117117117 %)
+
+Average Repeatability at num_keypts = 4: 0.008558558558558558
+Average Repeatability at num_keypts = 8: 0.01418918918918919
+Average Repeatability at num_keypts = 16: 0.018355855855855856
+Average Repeatability at num_keypts = 32: 0.028885135135135135
+Average Repeatability at num_keypts = 64: 0.04017454954954955
+Average Repeatability at num_keypts = 128: 0.058248873873873876
+Average Repeatability at num_keypts = 256: 0.08595861486486486
+Average Repeatability at num_keypts = 512: 0.13115850225225226
+
+origin_new
+Num_test 555
+Total loss: 0.0, RTE: 0.5437892297950556, var: 0.14847792430866769, RRE: 1.6093077628802461, var: 1.467908223461634, Success: 47.0 / 555 (8.468468468468467 %)
+
+Average Repeatability at num_keypts = 4: 0.005405405405405406
+Average Repeatability at num_keypts = 8: 0.013738738738738739
+Average Repeatability at num_keypts = 16: 0.021734234234234234
+Average Repeatability at num_keypts = 32: 0.03260135135135135
+Average Repeatability at num_keypts = 64: 0.04608671171171171
+Average Repeatability at num_keypts = 128: 0.06679335585585586
+Average Repeatability at num_keypts = 256: 0.09907798423423424
+Average Repeatability at num_keypts = 512: 0.15116483671171171
+
+LEVEL1
+Num_test 555
+Total loss: 0.0, RTE: 0.22413715152679203, var: 0.02847059627308448, RRE: 0.9824228673361262, var: 0.6862717846721202, Success: 529.0 / 555 (95.31531531531532 %)
+
+Average Repeatability at num_keypts = 4: 0.01981981981981982
+Average Repeatability at num_keypts = 8: 0.02725225225225225
+Average Repeatability at num_keypts = 16: 0.032545045045045046
+Average Repeatability at num_keypts = 32: 0.04864864864864865
+Average Repeatability at num_keypts = 64: 0.07100225225225225
+Average Repeatability at num_keypts = 128: 0.0995777027027027
+Average Repeatability at num_keypts = 256: 0.14422156531531533
+Average Repeatability at num_keypts = 512: 0.20837204391891892
 
 
 
 Oxford
-
+cd /home/code-server/D3Feat
+python training_oxford.py
 去 test_oxford.py 內 改 Log 路徑
 chosen_log = 'results_kitti/ ' 
 python test_oxford.py
 cd /home/code-server/D3Feat/repeatability
 python evaluate_oxford.py test snapshots-pred512
 cd /home/code-server/D3Feat/geometric_registration_kitti
-mv snapshots-pred512 D3Feat_snapshots-pred512-Qxford-LEVEL1
+mv snapshots-pred512 D3Feat_snapshots-pred512-Qxford-training-origin
 cd ..
 
+LEVEL1
 
+
+original
+Total loss: 0.0, RTE: 0.11712661487035803, var: 0.004333094576203294, RRE: 0.22389116755820201, var: 0.051843709994143256, Success: 96.0 / 96 (100.0 %)
+Average Repeatability at num_keypts = 4: 0.3958333333333333
+Average Repeatability at num_keypts = 8: 0.4375
+Average Repeatability at num_keypts = 16: 0.4791666666666667
+Average Repeatability at num_keypts = 32: 0.58203125
+Average Repeatability at num_keypts = 64: 0.6640625
+Average Repeatability at num_keypts = 128: 0.769775390625
+Average Repeatability at num_keypts = 256: 0.8142496744791666
+Average Repeatability at num_keypts = 512: 0.7148844401041666
+
+
+KITTI_Oxford
 Log_11011605
 Total loss: 0.0, RTE: 0.13510139843410984, var: 0.007902469840515208, RRE: 0.37608554378721526, var: 0.11127327826664632, Success: 98.0 / 99 (98.98989898989899 %)
 Average Repeatability at num_keypts = 4: 0.1717171717171717
@@ -96,9 +152,12 @@ export CUDA_VISIBLE_DEVICES=?
 chosen_log = 'results_kitti/ ' 
 python test_eth.py
 改 Log 名稱
-mv geometric_registration/D3Feat_level1 geometric_registration_eth/
+mv geometric_registration/D3Feat_origin geometric_registration_eth/
 cd /home/code-server/D3Feat/geometric_registration_eth
 export PYTHONPATH=$PYTHONPATH:..
+python evaluate_eth.py D3Feat origin/s-200-pred
+export PYTHONPATH=/home/code-server/D3Feat:$PYTHONPATH
+
 python evaluate_eth.py D3Feat level1
 
 Log_11011605
@@ -133,9 +192,37 @@ All 8 scene, average num inliers: inf
 All 8 scene, average num inliers ratio: inf
 
 
+origin
+Finish Evaluation, time: 33.85s
+Correct Match 1, ground truth Match 184
+Recall 0.5434782608695652%
+Average Num Inliners: 3.0
+Average Num Inliner Ratio: 0.13971561
+Correct Match 2, ground truth Match 289
+Recall 0.6920415224913495%
+Average Num Inliners: 2.5
+Average Num Inliner Ratio: 0.135544835
+Correct Match 0, ground truth Match 115
+Recall 0.0%
+evaluate_eth.py:160: RuntimeWarning: divide by zero encountered in double_scalars
+  ave_num_inliers = np.sum(np.where(result[:, 2] == 1, result[:, 0], np.zeros(result.shape[0]))) / pred_results
+Average Num Inliners: inf
+evaluate_eth.py:162: RuntimeWarning: divide by zero encountered in double_scalars
+  ave_inlier_ratio = np.sum(np.where(result[:, 2] == 1, result[:, 1], np.zeros(result.shape[0]))) / pred_results
+Average Num Inliner Ratio: inf
+Correct Match 0, ground truth Match 125
+Recall 0.0%
+Average Num Inliners: inf
+Average Num Inliner Ratio: inf
+****************************************
+[0.5434782608695652, 0.6920415224913495, 0.0, 0.0]
+Avergae Matching Recall: 0.42075736325385693%
+All 8 scene, average recall: 0.3088799458402287%
+All 8 scene, average num inliers: inf
+All 8 scene, average num inliers ratio: inf
 
 
-D3Feat_KITTI_20260417_073301_level1
+Level1
 Avergae Feature Extraction Time: 9.604637095422456
 
 Finish Evaluation, time: 37.28s

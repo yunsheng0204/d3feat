@@ -99,7 +99,7 @@ class OxfordConfig(Config):
     #####################
 
     # Maximal number of epochs
-    max_epoch = 200
+    max_epoch = 50
 
     # Learning rate management
     learning_rate = 1e-1
@@ -113,13 +113,13 @@ class OxfordConfig(Config):
     keypts_num = 1024
 
     # Number of steps per epochs (cannot be None for this dataset)
-    epoch_steps = 1000
+    epoch_steps = 300
 
     # Number of validation examples per epoch
-    validation_size = 100
+    validation_size = 95
 
     # Number of epoch between each snapshot
-    snapshot_gap = 1
+    snapshot_gap = 5
 
     # Augmentations
     augment_scale_anisotropic = True

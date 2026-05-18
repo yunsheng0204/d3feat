@@ -277,6 +277,8 @@ class OxfordKITTIDataset(Dataset):
         if split == 'train' or split == 'val':
             matching_search_voxel_size = self.matching_search_voxel_size
             matches = get_matching_indices(pcd0, pcd1, trans, matching_search_voxel_size)
+            matches = np.array(matches)
+
 
             if len(matches) < 1024:
                 print("Not enough corr:", src_name, tgt_name, len(matches))

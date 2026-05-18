@@ -107,8 +107,8 @@ if __name__ == '__main__':
 
     # Default is last log and last snapshot
     # chosen_log = 'results_kitti/Log_11011605'
-    chosen_log = 'results_kitti/D3Feat_KITTI_20260417_073301_level1'
-    # chosen_log = 'results_kitti/D3Feat_KITTI_20260505_031015_origin'
+    # chosen_log = 'results_kitti/D3Feat_KITTI_20260417_073301_level1'
+    chosen_log = 'results_kitti/D3Feat_KITTI_20260505_031015_origin'
     chosen_snapshot = -1
     on_val = True
 

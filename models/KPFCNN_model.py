@@ -114,7 +114,7 @@ class KernelPointFCNN:
             self.pos_id = flat_inputs[ind][1]
             ind += 1
             self.anchor_inputs['backup_points'] = flat_inputs[ind]
-            if config.dataset == 'KITTI':
+            if config.dataset == 'KITTI' or config.dataset == 'Oxford':
                 ind += 1
                 self.anchor_inputs['trans'] = flat_inputs[ind]
             # self.object_inds = self.anchor_inputs['object_inds']            
