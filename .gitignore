@@ -1,24 +1,45 @@
 */__pycache__/*
 .idea/
+
+# dataset
 data/
+
+# training outputs
 results/
-snapshot/
-tensorboard/
 results_kitti/
 results_oxford/
+
+snapshot/
 snapshot_kitti/
+
+tensorboard/
 tensorboard_kitti/
+
+# repeatability
 repeatability/*.log
 repeatability/*/
-kernels/dispositions
-geometric_registration_kitti/*
-geometric_registration_eth/*
-geometric_registration/oldlog/*
+
+# geometric registration outputs
+geometric_registration_kitti/
+geometric_registration_eth/
+geometric_registration/pred_result/
+geometric_registration/oldlog/
 geometric_registration/3DSmoothNet/
-geometric_registration/pred_result/*
-geometric_registration/*/
-*_back.py
+
+# generated files
+*.npy
+*.npz
+*.h5
+*.pth
+*.ckpt
+
+# build/cache
 *.pyc
 *.so
 *.o
 *.log
+
+# backup
+*_back.py
+
+kernels/dispositions
