@@ -36,7 +36,7 @@ python evaluate_kitti_our.py D3Feat D3Feat_snapshots-pred512
 
 # 改 snapshots 名稱
 cd /home/code-server/D3Feat/geometric_registration_kitti
-mv D3Feat_snapshots-pred512 D3Feat_snapshots-pred512-unknown
+mv D3Feat_snapshots-pred512 D3Feat_snapshots-pred512-level1-self-train
 cd ..
 
 KITTI
@@ -67,7 +67,7 @@ Average Repeatability at num_keypts = 128: 0.06679335585585586
 Average Repeatability at num_keypts = 256: 0.09907798423423424
 Average Repeatability at num_keypts = 512: 0.15116483671171171
 
-LEVEL1
+LEVEL1_useLOG
 Num_test 555
 Total loss: 0.0, RTE: 0.22413715152679203, var: 0.02847059627308448, RRE: 0.9824228673361262, var: 0.6862717846721202, Success: 529.0 / 555 (95.31531531531532 %)
 
@@ -80,6 +80,16 @@ Average Repeatability at num_keypts = 128: 0.0995777027027027
 Average Repeatability at num_keypts = 256: 0.14422156531531533
 Average Repeatability at num_keypts = 512: 0.20837204391891892
 
+LEVEL1_self_train
+Total loss: 0.0, RTE: 0.4431969359204287, var: 0.16272201184378718, RRE: 1.7006744869891628, var: 1.6776326035282771, Success: 102.0 / 555 (18.37837837837838 %)
+Average Repeatability at num_keypts = 4: 0.021621621621621623
+Average Repeatability at num_keypts = 8: 0.02927927927927928
+Average Repeatability at num_keypts = 16: 0.04279279279279279
+Average Repeatability at num_keypts = 32: 0.06064189189189189
+Average Repeatability at num_keypts = 64: 0.08578265765765766
+Average Repeatability at num_keypts = 128: 0.12307150900900901
+Average Repeatability at num_keypts = 256: 0.16744791666666667
+Average Repeatability at num_keypts = 512: 0.2168989301801802
 
 
 Oxford
@@ -93,26 +103,6 @@ python evaluate_oxford.py test snapshots-pred512
 cd /home/code-server/D3Feat/geometric_registration_kitti
 mv snapshots-pred512 D3Feat_snapshots-pred512-Qxford-training-origin-30
 cd ..
-
-epoch 30
-original
-Total loss: 0.0, RTE: 0.10992806083959294, var: 0.004378464917414535, RRE: 0.2294566149679236, var: 0.04690658232269011, Success: 96.0 / 96 (100.0 %)
-
-Num_test 96
-Anc points: 96
-Average Repeatability at num_keypts = 4: 0.3307291666666667
-Average Repeatability at num_keypts = 8: 0.4036458333333333
-Average Repeatability at num_keypts = 16: 0.4921875
-Average Repeatability at num_keypts = 32: 0.5755208333333334
-Average Repeatability at num_keypts = 64: 0.681640625
-Average Repeatability at num_keypts = 128: 0.7805989583333334
-Average Repeatability at num_keypts = 256: 0.8227945963541666
-Average Repeatability at num_keypts = 512: 0.71630859375
-
-LEVEL1
-
-
-
 
 
 
@@ -166,7 +156,7 @@ Average Repeatability at num_keypts = 128: 0.769775390625
 Average Repeatability at num_keypts = 256: 0.8142496744791666
 Average Repeatability at num_keypts = 512: 0.7148844401041666
 
-LEVEL1
+LEVEL1_self_train
 Total loss: 0.0, RTE: 0.11305444448104633, var: 0.003942076903355575, RRE: 0.21619226921298654, var: 0.03509252244118004, Success: 96.0 / 96 (100.0 %)
 
 Average Repeatability at num_keypts = 4: 0.5338541666666666
@@ -224,102 +214,88 @@ export CUDA_VISIBLE_DEVICES=?
 chosen_log = 'results_kitti/ ' 
 python test_eth.py
 改 Log 名稱
-mv geometric_registration/D3Feat_origin geometric_registration_eth/
+mv geometric_registration/D3Feat_myself/s-200-pred geometric_registration_eth/D3Feat_myself-s-200-pred
 cd /home/code-server/D3Feat/geometric_registration_eth
-export PYTHONPATH=$PYTHONPATH:..
-python evaluate_eth.py D3Feat origin/s-200-pred
-export PYTHONPATH=/home/code-server/D3Feat:$PYTHONPATH
-
-python evaluate_eth.py D3Feat level1
-
-Log_11011605
-Avergae Feature Extraction Time: 9.403865304860203
-
-Finish Evaluation, time: 38.77s
-Correct Match 2, ground truth Match 184
-Recall 1.0869565217391304%
-Average Num Inliners: 1.0
-Average Num Inliner Ratio: 0.066964285
-Correct Match 7, ground truth Match 289
-Recall 2.422145328719723%
-Average Num Inliners: 1.2857142857142858
-Average Num Inliner Ratio: 0.07925948142857142
-Correct Match 0, ground truth Match 115
-Recall 0.0%
-evaluate_eth.py:160: RuntimeWarning: divide by zero encountered in double_scalars
-  ave_num_inliers = np.sum(np.where(result[:, 2] == 1, result[:, 0], np.zeros(result.shape[0]))) / pred_results
-Average Num Inliners: inf
-evaluate_eth.py:162: RuntimeWarning: divide by zero encountered in double_scalars
-  ave_inlier_ratio = np.sum(np.where(result[:, 2] == 1, result[:, 1], np.zeros(result.shape[0]))) / pred_results
-Average Num Inliner Ratio: inf
-Correct Match 3, ground truth Match 125
-Recall 2.4%
-Average Num Inliners: 1.0
-Average Num Inliner Ratio: 0.055670223333333324
-****************************************
-[1.0869565217391304, 2.422145328719723, 0.0, 2.4]
-Avergae Matching Recall: 1.6830294530154277%
-All 8 scene, average recall: 1.4772754626147133%
-All 8 scene, average num inliers: inf
-All 8 scene, average num inliers ratio: inf
+python evaluate_eth.py D3Feat myself-s-200-pred
 
 
 origin
-Finish Evaluation, time: 33.85s
-Correct Match 1, ground truth Match 184
-Recall 0.5434782608695652%
-Average Num Inliners: 3.0
-Average Num Inliner Ratio: 0.13971561
-Correct Match 2, ground truth Match 289
-Recall 0.6920415224913495%
-Average Num Inliners: 2.5
-Average Num Inliner Ratio: 0.135544835
-Correct Match 0, ground truth Match 115
-Recall 0.0%
-evaluate_eth.py:160: RuntimeWarning: divide by zero encountered in double_scalars
-  ave_num_inliers = np.sum(np.where(result[:, 2] == 1, result[:, 0], np.zeros(result.shape[0]))) / pred_results
-Average Num Inliners: inf
-evaluate_eth.py:162: RuntimeWarning: divide by zero encountered in double_scalars
-  ave_inlier_ratio = np.sum(np.where(result[:, 2] == 1, result[:, 1], np.zeros(result.shape[0]))) / pred_results
-Average Num Inliner Ratio: inf
-Correct Match 0, ground truth Match 125
-Recall 0.0%
-Average Num Inliners: inf
-Average Num Inliner Ratio: inf
+Finish Evaluation, time: 35.54s
+Correct Match 108, ground truth Match 184
+Recall 58.69565217391305%
+Average Num Inliners: 3.462962962962963
+Average Num Inliner Ratio: 0.38738322203703707
+Correct Match 187, ground truth Match 289
+Recall 64.70588235294117%
+Average Num Inliners: 3.909090909090909
+Average Num Inliner Ratio: 0.3452767127807487
+Correct Match 103, ground truth Match 115
+Recall 89.56521739130436%
+Average Num Inliners: 5.912621359223301
+Average Num Inliner Ratio: 0.4318127713592233
+Correct Match 109, ground truth Match 125
+Recall 87.2%
+Average Num Inliners: 6.137614678899083
+Average Num Inliner Ratio: 0.4578692955045871
 ****************************************
-[0.5434782608695652, 0.6920415224913495, 0.0, 0.0]
-Avergae Matching Recall: 0.42075736325385693%
-All 8 scene, average recall: 0.3088799458402287%
-All 8 scene, average num inliers: inf
-All 8 scene, average num inliers ratio: inf
+[58.69565217391305, 64.70588235294117, 89.56521739130436, 87.2]
+Avergae Matching Recall: 71.10799438990182%
+All 8 scene, average recall: 75.04168797953965%
+All 8 scene, average num inliers: 4.855572477544064
+All 8 scene, average num inliers ratio: 0.40558550042039904
 
-
-Level1
-Avergae Feature Extraction Time: 9.604637095422456
-
-Finish Evaluation, time: 37.28s
-Correct Match 2, ground truth Match 184
-Recall 1.0869565217391304%
-Average Num Inliners: 1.5
-Average Num Inliner Ratio: 0.104978355
-Correct Match 2, ground truth Match 289
-Recall 0.6920415224913495%
-Average Num Inliners: 1.0
-Average Num Inliner Ratio: 0.083916085
-Correct Match 2, ground truth Match 115
-Recall 1.7391304347826086%
-Average Num Inliners: 1.0
-Average Num Inliner Ratio: 0.08881579
-Correct Match 1, ground truth Match 125
-Recall 0.8%
-Average Num Inliners: 2.0
-Average Num Inliner Ratio: 0.11212122
+Level1_useLOG
+Finish Evaluation, time: 38.11s
+Correct Match 84, ground truth Match 184
+Recall 45.65217391304348%
+Average Num Inliners: 2.75
+Average Num Inliner Ratio: 0.8323932351190476
+Correct Match 127, ground truth Match 289
+Recall 43.944636678200695%
+Average Num Inliners: 2.322834645669291
+Average Num Inliner Ratio: 0.8772215972440944
+Correct Match 94, ground truth Match 115
+Recall 81.73913043478261%
+Average Num Inliners: 4.127659574468085
+Average Num Inliner Ratio: 0.7153135542553191
+Correct Match 102, ground truth Match 125
+Recall 81.6%
+Average Num Inliners: 3.7254901960784315
+Average Num Inliner Ratio: 0.75694898
 ****************************************
-[1.0869565217391304, 0.6920415224913495, 1.7391304347826086, 0.8]
-Avergae Matching Recall: 0.9817671809256662%
-All 8 scene, average recall: 1.0795321197532721%
-All 8 scene, average num inliers: 1.375
-All 8 scene, average num inliers ratio: 0.09745786249999999
+[45.65217391304348, 43.944636678200695, 81.73913043478261, 81.6]
+Avergae Matching Recall: 57.082748948106584%
+All 8 scene, average recall: 63.23398525650669%
+All 8 scene, average num inliers: 3.231496104053952
+All 8 scene, average num inliers ratio: 0.7954693416546152
+
+
+
+Level1_self_train
+Finish Evaluation, time: 32.86s
+Correct Match 122, ground truth Match 184
+Recall 66.30434782608695%
+Average Num Inliners: 3.80327868852459
+Average Num Inliner Ratio: 0.45771221032786885
+Correct Match 199, ground truth Match 289
+Recall 68.85813148788927%
+Average Num Inliners: 4.296482412060302
+Average Num Inliner Ratio: 0.3504921192462311
+Correct Match 100, ground truth Match 115
+Recall 86.95652173913044%
+Average Num Inliners: 8.2
+Average Num Inliner Ratio: 0.4945136827
+Correct Match 118, ground truth Match 125
+Recall 94.39999999999999%
+Average Num Inliners: 9.042372881355933
+Average Num Inliner Ratio: 0.563550275
+****************************************
+[66.30434782608695, 68.85813148788927, 86.95652173913044, 94.39999999999999]
+Avergae Matching Recall: 75.5960729312763%
+All 8 scene, average recall: 79.12975026327666%
+All 8 scene, average num inliers: 6.3355334954852065
+All 8 scene, average num inliers ratio: 0.46656707181852497
+
 
 
 
