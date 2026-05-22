@@ -1,21 +1,7 @@
-nvidia-smi
-nvtop
-export CUDA_VISIBLE_DEVICES=0,1
-
-conda create -n D3Feat python=3.6 -y
-conda activate D3Feat
-conda install -c open3d-admin open3d=0.7.0.0
-pip install tensorflow-gpu==1.15
-pip install numpy scipy scikit-learn
-
-
 git remote -v
 git add .
 git commit -m ""
 git push yunsheng master
-
-
-python plot.py
 
 
 conda activate D3Feat
@@ -298,6 +284,38 @@ All 8 scene, average num inliers ratio: 0.46656707181852497
 
 
 
+PARE:
+
+
+
+KITTI:
+cd /home/code-server/D3Feat
+python training_KITTI_pare.py
+cd /home/code-server/D3Feat
+python test_kitti_pare.py
+cd /home/code-server/D3Feat/geometric_registration_kitti
+mv D3Feat_KITTI_PARE_你的log名稱-pred512 snapshots-pred512
+
+cd ../repeatability
+python evaluate_kitti_our.py D3Feat D3Feat_snapshots-pred512
+cd /home/code-server/D3Feat/geometric_registration_kitti
+mv snapshots-pred512 D3Feat_snapshots-pred512-KITTI-training-pare
+cd ..
+
+Oxford:
+
+cd /home/code-server/D3Feat
+python training_oxford_pare.py
+cd /home/code-server/D3Feat
+python test_oxford_pare.py
+cd /home/code-server/D3Feat/repeatability
+python evaluate_oxford.py test snapshots-pred512
+# 接著改名：
+cd /home/code-server/D3Feat/geometric_registration_kitti
+mv snapshots-pred512 D3Feat_snapshots-pred512-Oxford-training-pare-30
+cd ..
+
+
 
 2scenes > 10 meters
 python evaluate_kitti_our.py D3Feat D3Feat_snapshots-pred512
@@ -365,8 +383,27 @@ Radius 1.2 | Success: 96.94% (538.0/555) | RTE: 0.2519 | RRE: 0.7992
 Radius 1.5 | Success: 94.77% (526.0/555) | RTE: 0.2529 | RRE: 0.9030
 Radius 2.0 | Success: 90.27% (501.0/555) | RTE: 0.2979 | RRE: 1.0802
 
-2scenes > 20 meters
+
+
+### edited by yunsheng LEVEL2
 
 
 
-### edited by yunsheng
+
+nvidia-smi
+nvtop
+export CUDA_VISIBLE_DEVICES=0,1
+
+conda create -n D3Feat python=3.6 -y
+conda activate D3Feat
+conda install -c open3d-admin open3d=0.7.0.0
+pip install tensorflow-gpu==1.15
+pip install numpy scipy scikit-learn
+apt-get update
+apt-get install -y libgl1
+apt-get install -y libglib2.0-0 libsm6 libxext6 libxrender1
+export PYTHONPATH=/home/code-server/D3Feat:$PYTHONPATH
+conda install psutil -y
+
+
+python plot.py
