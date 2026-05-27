@@ -33,7 +33,7 @@ import shutil
 import os
 
 # Convolution functions
-from models.D3Feat_kitti_pare import assemble_FCNN_blocks
+from models.D3Feat_kitti_pare_lite import assemble_FCNN_blocks
 from utils.loss import cdist, LOSS_CHOICES
 
 

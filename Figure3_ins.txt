@@ -7,8 +7,9 @@ git push yunsheng master
 conda activate D3Feat
 cd D3Feat
 
-
-python training_KITTI.py
+watch -n 1 nvidia-smi
+export LD_LIBRARY_PATH=/opt/conda/envs/D3Feat/lib:$LD_LIBRARY_PATH
+CUDA_VISIBLE_DEVICES=?   python training_KITTI.py
 
 去 test_kitti.py 內 改 Log 路徑
 chosen_log = 'results_kitti/ ' 
@@ -22,7 +23,7 @@ python evaluate_kitti_our.py D3Feat D3Feat_snapshots-pred512
 
 # 改 snapshots 名稱
 cd /home/code-server/D3Feat/geometric_registration_kitti
-mv D3Feat_snapshots-pred512 D3Feat_snapshots-pred512-level1-self-train
+mv D3Feat_snapshots-pred512 D3Feat_snapshots-pred512-level2-bad
 cd ..
 
 KITTI
@@ -78,9 +79,25 @@ Average Repeatability at num_keypts = 256: 0.16744791666666667
 Average Repeatability at num_keypts = 512: 0.2168989301801802
 
 
+
+LEVEL2
+Total loss: 0.0, RTE: 0.6574464695177217, var: 0.20651576532750315, RRE: 1.674319109644499, var: 1.6760036208049263, Success: 52.0 / 555 (9.36936936936937 %)
+Num_test 555
+Average Repeatability at num_keypts = 4: 0.0018018018018018018
+Average Repeatability at num_keypts = 8: 0.0018018018018018018
+Average Repeatability at num_keypts = 16: 0.005067567567567568
+Average Repeatability at num_keypts = 32: 0.012162162162162163
+Average Repeatability at num_keypts = 64: 0.025028153153153154
+Average Repeatability at num_keypts = 128: 0.05128096846846847
+Average Repeatability at num_keypts = 256: 0.09508727477477477
+Average Repeatability at num_keypts = 512: 0.16972480292792794
+
+
 Oxford
 cd /home/code-server/D3Feat
-python training_oxford.py
+watch -n 1 nvidia-smi
+export LD_LIBRARY_PATH=/opt/conda/envs/D3Feat/lib:$LD_LIBRARY_PATH
+CUDA_VISIBLE_DEVICES=?   python training_oxford.py
 去 test_oxford.py 內 改 Log 路徑
 chosen_log = 'results_kitti/ ' 
 python test_oxford.py
@@ -123,6 +140,10 @@ Average Repeatability at num_keypts = 128: 0.7390950520833334
 Average Repeatability at num_keypts = 256: 0.8056640625
 Average Repeatability at num_keypts = 512: 0.71343994140625
 
+LEVEL2
+
+
+
 
 
 
@@ -153,7 +174,6 @@ Average Repeatability at num_keypts = 64: 0.9153645833333334
 Average Repeatability at num_keypts = 128: 0.8456217447916666
 Average Repeatability at num_keypts = 256: 0.7980550130208334
 Average Repeatability at num_keypts = 512: 0.6980794270833334
-
 
 
 
@@ -290,9 +310,11 @@ PARE:
 
 KITTI:
 cd /home/code-server/D3Feat
-python training_KITTI_pare.py
+watch -n 1 nvidia-smi
+export LD_LIBRARY_PATH=/opt/conda/envs/D3Feat/lib:$LD_LIBRARY_PATH
+CUDA_VISIBLE_DEVICES=?   python training_KITTI_pare_lite.py
 cd /home/code-server/D3Feat
-python test_kitti_pare.py
+python test_kitti_pare_lite.py
 cd /home/code-server/D3Feat/geometric_registration_kitti
 mv D3Feat_KITTI_PARE_你的log名稱-pred512 snapshots-pred512
 
@@ -305,7 +327,9 @@ cd ..
 Oxford:
 
 cd /home/code-server/D3Feat
-python training_oxford_pare.py
+watch -n 1 nvidia-smi
+export LD_LIBRARY_PATH=/opt/conda/envs/D3Feat/lib:$LD_LIBRARY_PATH
+CUDA_VISIBLE_DEVICES=?   python training_oxford_pare.py
 cd /home/code-server/D3Feat
 python test_oxford_pare.py
 cd /home/code-server/D3Feat/repeatability
@@ -315,6 +339,17 @@ cd /home/code-server/D3Feat/geometric_registration_kitti
 mv snapshots-pred512 D3Feat_snapshots-pred512-Oxford-training-pare-30
 cd ..
 
+Total loss: 0.0, RTE: 0.13025609984209663, var: 0.026022384042333552, RRE: 0.2728697998589658, var: 0.13784643775946195, Success: 95.0 / 96 (98.95833333333334 %)
+Num_test 96
+Anc points: 96
+Average Repeatability at num_keypts = 4: 0.3333333333333333
+Average Repeatability at num_keypts = 8: 0.3984375
+Average Repeatability at num_keypts = 16: 0.44140625
+Average Repeatability at num_keypts = 32: 0.5302734375
+Average Repeatability at num_keypts = 64: 0.6529947916666666
+Average Repeatability at num_keypts = 128: 0.7655436197916666
+Average Repeatability at num_keypts = 256: 0.8193766276041666
+Average Repeatability at num_keypts = 512: 0.7166341145833334
 
 
 2scenes > 10 meters
@@ -404,6 +439,9 @@ apt-get install -y libgl1
 apt-get install -y libglib2.0-0 libsm6 libxext6 libxrender1
 export PYTHONPATH=/home/code-server/D3Feat:$PYTHONPATH
 conda install psutil -y
+apt install -y nvtop
+conda install -c anaconda cudatoolkit=10.0 cudnn=7 -y
+export LD_LIBRARY_PATH=/opt/conda/envs/D3Feat/lib:$LD_LIBRARY_PATH
 
 
 python plot.py

@@ -6,7 +6,7 @@ import sys
 # Custom libs
 from utils.config import Config
 from utils.trainer import ModelTrainer
-from models.KPFCNN_model_kitti_pare import KernelPointFCNN
+from models.KPFCNN_model_kitti_pare_lite import KernelPointFCNN
 
 # Dataset
 from datasets.KITTI import KITTIDataset
@@ -135,7 +135,7 @@ class KITTIConfig(Config):
     saving = True
     # saving_path = None
     # saving_path = 'results_kitti/D3Feat_KITTI_exp01'
-    saving_path = 'results_kitti/D3Feat_KITTI_PARE_' + time.strftime('%Y%m%d_%H%M%S')
+    saving_path = 'results_kitti/D3Feat_KITTI_PARE_LITE_' + time.strftime('%Y%m%d_%H%M%S')
 
 
 

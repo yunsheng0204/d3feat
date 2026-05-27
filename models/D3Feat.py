@@ -41,8 +41,15 @@ def local_self_attention(features, neighbors, name='local_self_attention'):
         # weighted sum
         attn_features = tf.reduce_sum(attn * v, axis=1)
 
-        # residual connection
-        out_features = features + attn_features
+        gamma = tf.get_variable(
+            'gamma',
+            shape=[],
+            initializer=tf.constant_initializer(0.01),
+            trainable=True
+        )
+
+        out_features = features + gamma * attn_features
+        out_features = tf.nn.l2_normalize(out_features, axis=1, epsilon=1e-10)
 
         return out_features
 ### edited by yunsheng LEVEL2

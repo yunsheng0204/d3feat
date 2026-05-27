@@ -6,7 +6,7 @@ import numpy as np
 # My libs
 from utils.config import Config
 from utils.tester import ModelTester
-from models.KPFCNN_model_kitti_pare import KernelPointFCNN
+from models.KPFCNN_model_kitti_pare_lite import KernelPointFCNN
 
 # Datasets
 from datasets.KITTI import KITTIDataset
@@ -101,8 +101,8 @@ if __name__ == '__main__':
     # chosen_log = 'last_KITTI'
 
     ## edited by yunsheng log path
-    chosen_log = None
-    # chosen_log = None
+    chosen_log = 'results_kitti/D3Feat_KITTI_PARE_LITE_20260523_064844'
+    # chosen_log = 'results_kitti/Log_11011605'
     chosen_snapshot = -1
     on_val = True
 
@@ -129,10 +129,10 @@ if __name__ == '__main__':
         logs = np.sort([
             os.path.join('results_kitti', f)
             for f in os.listdir('results_kitti')
-            if f.startswith('D3Feat_KITTI_PARE_')
+            if f.startswith('D3Feat_KITTI_PARE_LITE_')
         ])
         if len(logs) == 0:
-            raise ValueError('No PARE KITTI log found under results_kitti/D3Feat_KITTI_PARE_*')
+            raise ValueError('No PARE-Lite KITTI log found under results_kitti/D3Feat_KITTI_PARE_LITE_*')
         chosen_log = logs[-1]
 
     # Check if log exists
