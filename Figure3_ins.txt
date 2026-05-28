@@ -81,7 +81,7 @@ Average Repeatability at num_keypts = 512: 0.2168989301801802
 
 
 LEVEL2
-Total loss: 0.0, RTE: 0.6574464695177217, var: 0.20651576532750315, RRE: 1.674319109644499, var: 1.6760036208049263, Success: 52.0 / 555 (9.36936936936937 %)
+Total loss: 0.0, RTE: 0.5985349155308908, var: 0.16997237989012393, RRE: 1.6375029310301463, var: 1.6010253039806361, Success: 46.0 / 555 (8.288288288288289 %)
 Num_test 555
 Average Repeatability at num_keypts = 4: 0.0018018018018018018
 Average Repeatability at num_keypts = 8: 0.0018018018018018018
@@ -220,9 +220,9 @@ export CUDA_VISIBLE_DEVICES=?
 chosen_log = 'results_kitti/ ' 
 python test_eth.py
 改 Log 名稱
-mv geometric_registration/D3Feat_myself/s-200-pred geometric_registration_eth/D3Feat_myself-s-200-pred
+mv geometric_registration/D3Feat_064844/s-200-pred geometric_registration_eth/D3Feat_064844-s-200-pred
 cd /home/code-server/D3Feat/geometric_registration_eth
-python evaluate_eth.py D3Feat myself-s-200-pred
+python evaluate_eth.py D3Feat 064844-s-200-pred
 
 
 origin
@@ -305,8 +305,31 @@ All 8 scene, average num inliers ratio: 0.46656707181852497
 
 
 PARE:
+Correct Match 128, ground truth Match 184
+Recall 69.56521739130434%
+Average Num Inliners: 4.8984375
+Average Num Inliner Ratio: 0.453141372890625
+Correct Match 211, ground truth Match 289
+Recall 73.01038062283737%
+Average Num Inliners: 5.109004739336493
+Average Num Inliner Ratio: 0.37343828886255925
+Correct Match 105, ground truth Match 115
+Recall 91.30434782608695%
+Average Num Inliners: 9.933333333333334
+Average Num Inliner Ratio: 0.5331871460952381
+Correct Match 114, ground truth Match 125
+Recall 91.2%
+Average Num Inliners: 9.482456140350877
+Average Num Inliner Ratio: 0.5335912248245613
+****************************************
+[69.56521739130434, 73.01038062283737, 91.30434782608695, 91.2]
+Avergae Matching Recall: 78.26086956521739%
+All 8 scene, average recall: 81.26998646005717%
+All 8 scene, average num inliers: 7.355807928255176
+All 8 scene, average num inliers ratio: 0.47333950816824594
 
 
+PARE:
 
 KITTI:
 cd /home/code-server/D3Feat
@@ -323,6 +346,19 @@ python evaluate_kitti_our.py D3Feat D3Feat_snapshots-pred512
 cd /home/code-server/D3Feat/geometric_registration_kitti
 mv snapshots-pred512 D3Feat_snapshots-pred512-KITTI-training-pare
 cd ..
+
+Total loss: 0.0, RTE: 0.5408191994896957, var: 0.13757092355110162, RRE: 1.7569984828647556, var: 1.552964040069671, Success: 70.0 / 555 (12.612612612612612 %)
+
+Num_test 555
+Average Repeatability at num_keypts = 4: 0.01126126126126126
+Average Repeatability at num_keypts = 8: 0.017342342342342342
+Average Repeatability at num_keypts = 16: 0.030292792792792792
+Average Repeatability at num_keypts = 32: 0.04054054054054054
+Average Repeatability at num_keypts = 64: 0.05810810810810811
+Average Repeatability at num_keypts = 128: 0.08261542792792793
+Average Repeatability at num_keypts = 256: 0.12015765765765765
+Average Repeatability at num_keypts = 512: 0.17231489301801803
+
 
 Oxford:
 

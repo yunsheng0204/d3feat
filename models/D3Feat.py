@@ -2,56 +2,56 @@ from models.network_blocks import assemble_CNN_blocks, get_block_ops
 import tensorflow as tf
 
 ### edited by yunsheng LEVEL2
-def local_self_attention(features, neighbors, name='local_self_attention'):
-    """
-    Local self-attention for point features.
+# def local_self_attention(features, neighbors, name='local_self_attention'):
+#     """
+#     Local self-attention for point features.
 
-    features: [N, C]
-    neighbors: [N, K]
-    """
+#     features: [N, C]
+#     neighbors: [N, K]
+#     """
 
-    with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
+#     with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
 
-        # shadow feature
-        shadow_feature = tf.zeros_like(features[:1, :])
-        features_with_shadow = tf.concat([features, shadow_feature], axis=0)
+#         # shadow feature
+#         shadow_feature = tf.zeros_like(features[:1, :])
+#         features_with_shadow = tf.concat([features, shadow_feature], axis=0)
 
-        # gather neighbor feature
-        neighbor_features = tf.gather(features_with_shadow, neighbors)
+#         # gather neighbor feature
+#         neighbor_features = tf.gather(features_with_shadow, neighbors)
 
-        # center feature
-        center_features = tf.expand_dims(features, axis=1)
+#         # center feature
+#         center_features = tf.expand_dims(features, axis=1)
 
-        C = features.get_shape()[-1].value
+#         C = features.get_shape()[-1].value
 
-        # Q K V
-        q = tf.layers.dense(center_features, C, name='q_fc')
-        k = tf.layers.dense(neighbor_features, C, name='k_fc')
-        v = tf.layers.dense(neighbor_features, C, name='v_fc')
+#         # Q K V
+#         q = tf.layers.dense(center_features, C, name='q_fc')
+#         k = tf.layers.dense(neighbor_features, C, name='k_fc')
+#         v = tf.layers.dense(neighbor_features, C, name='v_fc')
 
-        # attention score
-        attn_logits = tf.reduce_sum(q * k, axis=-1, keepdims=True)
+#         # attention score
+#         attn_logits = tf.reduce_sum(q * k, axis=-1, keepdims=True)
 
-        # scaling
-        attn_logits = attn_logits / tf.sqrt(tf.cast(C, tf.float32))
+#         # scaling
+#         attn_logits = attn_logits / tf.sqrt(tf.cast(C, tf.float32))
 
-        # softmax
-        attn = tf.nn.softmax(attn_logits, axis=1)
+#         # softmax
+#         attn = tf.nn.softmax(attn_logits, axis=1)
 
-        # weighted sum
-        attn_features = tf.reduce_sum(attn * v, axis=1)
+#         # weighted sum
+#         attn_features = tf.reduce_sum(attn * v, axis=1)
 
-        gamma = tf.get_variable(
-            'gamma',
-            shape=[],
-            initializer=tf.constant_initializer(0.01),
-            trainable=True
-        )
+#         gamma = tf.get_variable(
+#             'gamma',
+#             shape=[],
+#             initializer=tf.constant_initializer(0.01),
+#             trainable=True
+#         )
 
-        out_features = features + gamma * attn_features
-        out_features = tf.nn.l2_normalize(out_features, axis=1, epsilon=1e-10)
+#         out_features = features + gamma * attn_features
+#         out_features = tf.nn.l2_normalize(out_features, axis=1, epsilon=1e-10)
 
-        return out_features
+#         return out_features
 ### edited by yunsheng LEVEL2
 
 def assemble_FCNN_blocks(inputs, config, dropout_prob):
@@ -117,11 +117,11 @@ def assemble_FCNN_blocks(inputs, config, dropout_prob):
     backup_features = tf.nn.l2_normalize(features, axis=1, epsilon=1e-10)
 
     ### edited by yunsheng LEVEL2
-    backup_features = local_self_attention(
-        backup_features,
-        inputs['neighbors'][0],
-        name='level2_attention'
-    )
+    # backup_features = local_self_attention(
+    #     backup_features,
+    #     inputs['neighbors'][0],
+    #     name='level2_attention'
+    # )
     ### edited by yunsheng LEVEL2
 
 
@@ -164,37 +164,37 @@ def assemble_FCNN_blocks(inputs, config, dropout_prob):
 
 
     ### edited by yunsheng LEVEL1 origin
-    # all_score = local_max_score * depth_wise_max_score
-    # # use the max score among channel to be the score of a single point. 
-    # score = tf.reduce_max(all_score, axis=1, keepdims=True)  # [n_points, 1]
+    all_score = local_max_score * depth_wise_max_score
+    # use the max score among channel to be the score of a single point. 
+    score = tf.reduce_max(all_score, axis=1, keepdims=True)  # [n_points, 1]
 
-    # # hard selection (used during test)
-    # # local_max = tf.reduce_max(neighbor_features, axis=1)
-    # # is_local_max = tf.equal(features, local_max)
-    # # is_local_max = tf.Print(is_local_max, [tf.reduce_sum(tf.cast(is_local_max, tf.int32))], message='num of local max')
-    # # detected = tf.reduce_max(tf.cast(is_local_max, tf.float32), axis=1, keepdims=True)
-    # # score = score * detected
+    # hard selection (used during test)
+    # local_max = tf.reduce_max(neighbor_features, axis=1)
+    # is_local_max = tf.equal(features, local_max)
+    # is_local_max = tf.Print(is_local_max, [tf.reduce_sum(tf.cast(is_local_max, tf.int32))], message='num of local max')
+    # detected = tf.reduce_max(tf.cast(is_local_max, tf.float32), axis=1, keepdims=True)
+    # score = score * detected
 
-    # return backup_features, score[:-1, :]
+    return backup_features, score[:-1, :]
 
     ### edited by yunsheng LEVEL1 origin
     ### edited by yunsheng LEVEL1
     ### edited by yunsheng LEVEL1
 
-    all_score = local_max_score * depth_wise_max_score
-    score = tf.reduce_max(all_score, axis=1, keepdims=True)  # [n_points+1, 1]
+    # all_score = local_max_score * depth_wise_max_score
+    # score = tf.reduce_max(all_score, axis=1, keepdims=True)  # [n_points+1, 1]
 
-    # remove shadow point
-    score = score[:-1, :]   # [n_points, 1]
+    # # remove shadow point
+    # score = score[:-1, :]   # [n_points, 1]
 
-    # attention branch
-    with tf.variable_scope('attention_head'):
-        attn = tf.layers.dense(backup_features, 1, name='attn_fc')
-        attn = tf.nn.sigmoid(attn)
+    # # attention branch
+    # with tf.variable_scope('attention_head'):
+    #     attn = tf.layers.dense(backup_features, 1, name='attn_fc')
+    #     attn = tf.nn.sigmoid(attn)
 
-    # reweight keypoint score
-    score = score * attn
+    # # reweight keypoint score
+    # score = score * attn
 
-    return backup_features, score
+    # return backup_features, score
 
     ### edited by yunsheng LEVEL1
