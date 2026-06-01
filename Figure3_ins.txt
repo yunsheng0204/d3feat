@@ -3,6 +3,7 @@ git add .
 git commit -m ""
 git push yunsheng master
 
+export PYTHONPATH=/home/code-server/D3Feat:$PYTHONPATH
 
 conda activate D3Feat
 cd D3Feat
@@ -118,8 +119,57 @@ python test_oxford.py
 cd /home/code-server/D3Feat/repeatability
 python evaluate_oxford.py test snapshots-pred512
 cd /home/code-server/D3Feat/geometric_registration_kitti
-mv snapshots-pred512 D3Feat_snapshots-pred512-Qxford-training-origin-30
+mv snapshots-pred512 D3Feat_snapshots-pred512-Qxford-LEVEL2
 cd ..
+
+
+epoch 50
+original
+
+Total loss: 0.0, RTE: 0.11712661487035803, var: 0.004333094576203294, RRE: 0.22389116755820201, var: 0.051843709994143256, Success: 96.0 / 96 (100.0 %)
+
+Num_test 96
+Anc points: 96
+Average Repeatability at num_keypts = 4: 0.3958333333333333
+Average Repeatability at num_keypts = 8: 0.4375
+Average Repeatability at num_keypts = 16: 0.4791666666666667
+Average Repeatability at num_keypts = 32: 0.58203125
+Average Repeatability at num_keypts = 64: 0.6640625
+Average Repeatability at num_keypts = 128: 0.769775390625
+Average Repeatability at num_keypts = 256: 0.8142496744791666
+Average Repeatability at num_keypts = 512: 0.7148844401041666
+
+LEVEL1_self_train
+Total loss: 0.0, RTE: 0.11305444448104633, var: 0.003942076903355575, RRE: 0.21619226921298654, var: 0.03509252244118004, Success: 96.0 / 96 (100.0 %)
+
+Average Repeatability at num_keypts = 4: 0.5338541666666666
+Average Repeatability at num_keypts = 8: 0.6575520833333334
+Average Repeatability at num_keypts = 16: 0.7571614583333334
+Average Repeatability at num_keypts = 32: 0.8424479166666666
+Average Repeatability at num_keypts = 64: 0.9153645833333334
+Average Repeatability at num_keypts = 128: 0.8456217447916666
+Average Repeatability at num_keypts = 256: 0.7980550130208334
+Average Repeatability at num_keypts = 512: 0.6980794270833334
+
+LEVEL2
+Total loss: 0.0, RTE: 0.11755466094230844, var: 0.005388644980134822, RRE: 0.22839658297215626, var: 0.03790124692600826, Success: 96.0 / 96 (100.0 %)
+Num_test 96
+Anc points: 96
+Average Repeatability at num_keypts = 4: 0.546875
+Average Repeatability at num_keypts = 8: 0.6848958333333334
+Average Repeatability at num_keypts = 16: 0.8020833333333334
+Average Repeatability at num_keypts = 32: 0.9072265625
+Average Repeatability at num_keypts = 64: 0.9156901041666666
+Average Repeatability at num_keypts = 128: 0.873046875
+Average Repeatability at num_keypts = 256: 0.81787109375
+Average Repeatability at num_keypts = 512: 0.7042643229166666
+
+
+
+
+
+
+
 
 
 
@@ -154,40 +204,6 @@ Average Repeatability at num_keypts = 128: 0.7390950520833334
 Average Repeatability at num_keypts = 256: 0.8056640625
 Average Repeatability at num_keypts = 512: 0.71343994140625
 
-LEVEL2
-
-
-
-
-
-
-epoch 50
-original
-
-Total loss: 0.0, RTE: 0.11712661487035803, var: 0.004333094576203294, RRE: 0.22389116755820201, var: 0.051843709994143256, Success: 96.0 / 96 (100.0 %)
-
-Num_test 96
-Anc points: 96
-Average Repeatability at num_keypts = 4: 0.3958333333333333
-Average Repeatability at num_keypts = 8: 0.4375
-Average Repeatability at num_keypts = 16: 0.4791666666666667
-Average Repeatability at num_keypts = 32: 0.58203125
-Average Repeatability at num_keypts = 64: 0.6640625
-Average Repeatability at num_keypts = 128: 0.769775390625
-Average Repeatability at num_keypts = 256: 0.8142496744791666
-Average Repeatability at num_keypts = 512: 0.7148844401041666
-
-LEVEL1_self_train
-Total loss: 0.0, RTE: 0.11305444448104633, var: 0.003942076903355575, RRE: 0.21619226921298654, var: 0.03509252244118004, Success: 96.0 / 96 (100.0 %)
-
-Average Repeatability at num_keypts = 4: 0.5338541666666666
-Average Repeatability at num_keypts = 8: 0.6575520833333334
-Average Repeatability at num_keypts = 16: 0.7571614583333334
-Average Repeatability at num_keypts = 32: 0.8424479166666666
-Average Repeatability at num_keypts = 64: 0.9153645833333334
-Average Repeatability at num_keypts = 128: 0.8456217447916666
-Average Repeatability at num_keypts = 256: 0.7980550130208334
-Average Repeatability at num_keypts = 512: 0.6980794270833334
 
 
 
@@ -234,9 +250,9 @@ export CUDA_VISIBLE_DEVICES=?
 chosen_log = 'results_kitti/ ' 
 python test_eth.py
 改 Log 名稱
-mv geometric_registration/D3Feat_064844/s-200-pred geometric_registration_eth/D3Feat_064844-s-200-pred
+mv geometric_registration/D3Feat_LEVEL2/s-200-pred geometric_registration_eth/D3Feat_LEVEL2-s-200-pred
 cd /home/code-server/D3Feat/geometric_registration_eth
-python evaluate_eth.py D3Feat 064844-s-200-pred
+python evaluate_eth.py D3Feat LEVEL2-s-200-pred
 
 
 origin
@@ -316,6 +332,32 @@ All 8 scene, average recall: 79.12975026327666%
 All 8 scene, average num inliers: 6.3355334954852065
 All 8 scene, average num inliers ratio: 0.46656707181852497
 
+
+LEVEL2
+
+Finish Evaluation, time: 31.87s
+Correct Match 94, ground truth Match 184
+Recall 51.08695652173913%
+Average Num Inliners: 3.1595744680851063
+Average Num Inliner Ratio: 0.6654389637234042
+Correct Match 170, ground truth Match 289
+Recall 58.82352941176471%
+Average Num Inliners: 3.788235294117647
+Average Num Inliner Ratio: 0.5245206275294118
+Correct Match 98, ground truth Match 115
+Recall 85.21739130434783%
+Average Num Inliners: 8.295918367346939
+Average Num Inliner Ratio: 0.684958119489796
+Correct Match 110, ground truth Match 125
+Recall 88.0%
+Average Num Inliners: 7.4818181818181815
+Average Num Inliner Ratio: 0.6849509456363637
+****************************************
+[51.08695652173913, 58.82352941176471, 85.21739130434783, 88.0]
+Avergae Matching Recall: 66.19915848527349%
+All 8 scene, average recall: 70.78196930946292%
+All 8 scene, average num inliers: 5.681386577841969
+All 8 scene, average num inliers ratio: 0.639967164094744
 
 
 PARE:
