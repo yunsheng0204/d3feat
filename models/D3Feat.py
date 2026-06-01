@@ -54,6 +54,41 @@ def local_self_attention(features, neighbors, name='local_self_attention'):
         return out_features
 ### edited by yunsheng LEVEL2
 
+
+### edited by yunsheng DUAL-BRANCH
+def dual_branch_refinement(features, name='dual_branch_refinement'):
+    """
+    Lightweight dual-branch refinement.
+    Descriptor branch and detector branch are separated with minimal parameters.
+    """
+
+    C = features.get_shape()[-1].value
+
+    with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
+
+        with tf.variable_scope('descriptor_branch'):
+            descriptor_delta = tf.layers.dense(
+                features,
+                C,
+                activation=tf.nn.relu,
+                name='desc_fc'
+            )
+            descriptor_features = features + 0.1 * descriptor_delta
+            descriptor_features = tf.nn.l2_normalize(descriptor_features, axis=1, epsilon=1e-10)
+
+        with tf.variable_scope('detector_branch'):
+            detector_delta = tf.layers.dense(
+                features,
+                C,
+                activation=tf.nn.relu,
+                name='det_fc'
+            )
+            detector_features = features + 0.1 * detector_delta
+            detector_features = tf.nn.l2_normalize(detector_features, axis=1, epsilon=1e-10)
+
+    return descriptor_features, detector_features
+### edited by yunsheng DUAL-BRANCH
+
 def assemble_FCNN_blocks(inputs, config, dropout_prob):
     """
     Definition of all the layers according to config
@@ -124,6 +159,13 @@ def assemble_FCNN_blocks(inputs, config, dropout_prob):
     )
     ### edited by yunsheng LEVEL2
 
+### edited by yunsheng DUAL-BRANCH
+    descriptor_features, detector_features = dual_branch_refinement(
+        backup_features,
+        name='dual_branch_refinement'
+    )
+### edited by yunsheng DUAL-BRANCH
+
 
     # Soft Detection Module
     neighbor = inputs['neighbors'][0]  # [n_points, n_neighbors]
@@ -187,14 +229,25 @@ def assemble_FCNN_blocks(inputs, config, dropout_prob):
     # remove shadow point
     score = score[:-1, :]   # [n_points, 1]
 
-    # attention branch
+    ### edited by yunsheng DUAL-BRANCH
+    # # attention branch
+    # with tf.variable_scope('attention_head'):
+    #     attn = tf.layers.dense(backup_features, 1, name='attn_fc')
+    #     attn = tf.nn.sigmoid(attn)
+
+    # # reweight keypoint score
+    # score = score * attn
+
+    # return backup_features, score
+
+    ### edited by yunsheng DUAL-BRANCH
     with tf.variable_scope('attention_head'):
-        attn = tf.layers.dense(backup_features, 1, name='attn_fc')
+        attn = tf.layers.dense(detector_features, 1, name='attn_fc')
         attn = tf.nn.sigmoid(attn)
 
-    # reweight keypoint score
     score = score * attn
 
-    return backup_features, score
+    return descriptor_features, score
+    ### edited by yunsheng DUAL-BRANCH
 
     ### edited by yunsheng LEVEL1

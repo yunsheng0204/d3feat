@@ -93,7 +93,7 @@ Average Repeatability at num_keypts = 256: 0.09508727477477477
 Average Repeatability at num_keypts = 512: 0.16972480292792794
 
 LEVEL2_new
-
+Total loss: 0.0, RTE: 0.5596550124195906, var: 0.21834517109287954, RRE: 1.7341215004436412, var: 1.6372998169489454, Success: 137.0 / 555 (24.684684684684687 %)
 Num_test 555
 Average Repeatability at num_keypts = 4: 0.03153153153153153
 Average Repeatability at num_keypts = 8: 0.052477477477477476
