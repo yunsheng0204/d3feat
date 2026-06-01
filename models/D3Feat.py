@@ -54,6 +54,79 @@ def local_self_attention(features, neighbors, name='local_self_attention'):
         return out_features
 ### edited by yunsheng LEVEL2
 
+### edited by yunsheng Transformer
+def lightweight_global_transformer(features, name='global_transformer', sample_size=256):
+    """
+    Lightweight global transformer refinement.
+    Avoid full N x N attention by using sampled global tokens.
+    features: [N, C]
+    """
+
+    with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
+        N = tf.shape(features)[0]
+        C = features.get_shape()[-1].value
+
+        sample_size = tf.minimum(sample_size, N)
+        idx = tf.cast(
+            tf.linspace(0.0, tf.cast(N - 1, tf.float32), sample_size),
+            tf.int32
+        )
+
+        global_tokens = tf.gather(features, idx)  # [M, C]
+
+        q = tf.layers.dense(features, C, name='q_fc')         # [N, C]
+        k = tf.layers.dense(global_tokens, C, name='k_fc')    # [M, C]
+        v = tf.layers.dense(global_tokens, C, name='v_fc')    # [M, C]
+
+        attn_logits = tf.matmul(q, k, transpose_b=True)
+        attn_logits = attn_logits / tf.sqrt(tf.cast(C, tf.float32))
+
+        attn = tf.nn.softmax(attn_logits, axis=-1)
+        global_context = tf.matmul(attn, v)  # [N, C]
+
+        gamma = tf.get_variable(
+            'gamma',
+            shape=[],
+            initializer=tf.constant_initializer(0.01),
+            trainable=True
+        )
+
+        out = features + gamma * global_context
+        out = tf.layers.dense(out, C, activation=tf.nn.relu, name='ffn_1')
+        out = tf.layers.dense(out, C, name='ffn_2')
+        out = features + gamma * out
+        out = tf.nn.l2_normalize(out, axis=1, epsilon=1e-10)
+
+        return out
+
+
+def score_transformer_refinement(score, features, name='score_transformer'):
+    """
+    Detector branch score refinement.
+    score: [N, 1]
+    features: [N, C]
+    """
+
+    with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
+        C = features.get_shape()[-1].value
+
+        score_embed = tf.layers.dense(score, C, activation=tf.nn.relu, name='score_embed')
+        score_feat = score_embed + features
+
+        refined_feat = lightweight_global_transformer(
+            score_feat,
+            name='score_global_refine',
+            sample_size=256
+        )
+
+        refined_score = tf.layers.dense(refined_feat, 1, name='score_out')
+        refined_score = tf.nn.softplus(refined_score)
+
+        return refined_score
+
+
+### edited by yunsheng Transformer
+
 def assemble_FCNN_blocks(inputs, config, dropout_prob):
     """
     Definition of all the layers according to config
@@ -187,14 +260,42 @@ def assemble_FCNN_blocks(inputs, config, dropout_prob):
     # remove shadow point
     score = score[:-1, :]   # [n_points, 1]
 
-    # attention branch
-    with tf.variable_scope('attention_head'):
-        attn = tf.layers.dense(backup_features, 1, name='attn_fc')
+    ### edited by yunsheng Transformer
+
+    # # attention branch
+    # with tf.variable_scope('attention_head'):
+    #     attn = tf.layers.dense(backup_features, 1, name='attn_fc')
+    #     attn = tf.nn.sigmoid(attn)
+
+    # # reweight keypoint score
+    # score = score * attn
+
+    # return backup_features, score
+
+    ### edited by yunsheng Transformer
+
+    # Descriptor Branch
+    descriptor_features = lightweight_global_transformer(
+        backup_features,
+        name='descriptor_branch_transformer',
+        sample_size=256
+    )
+
+    # Detector Branch
+    refined_score = score_transformer_refinement(
+        score,
+        features[:-1, :],   # non descriptor_features
+        name='detector_branch_transformer'
+    )
+
+    # Attention-guided Score Refinement
+    with tf.variable_scope('attention_guided_score_refinement'):
+        attn = tf.layers.dense(descriptor_features, 1, name='attn_fc')
         attn = tf.nn.sigmoid(attn)
 
-    # reweight keypoint score
-    score = score * attn
+    final_score = refined_score * attn
 
-    return backup_features, score
+    return descriptor_features, final_score
+    ### edited by yunsheng Transformer
 
     ### edited by yunsheng LEVEL1
