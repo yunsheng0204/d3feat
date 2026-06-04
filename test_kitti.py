@@ -101,7 +101,7 @@ if __name__ == '__main__':
     # chosen_log = 'last_KITTI'
 
     ## edited by yunsheng log path
-    chosen_log = 'results_kitti/D3Feat_KITTI_20260528_062613_LEVEL2'
+    chosen_log = 'results_kitti/D3Feat_KITTI_20260601_070335_our'
     # chosen_log = 'results_kitti/Log_11011605'
     chosen_snapshot = -1
     on_val = True

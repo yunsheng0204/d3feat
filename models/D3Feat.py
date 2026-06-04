@@ -110,17 +110,33 @@ def score_transformer_refinement(score, features, name='score_transformer'):
     with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
         C = features.get_shape()[-1].value
 
-        score_embed = tf.layers.dense(score, C, activation=tf.nn.relu, name='score_embed')
+        # Embed initial score
+        score_embed = tf.layers.dense(
+            score, C,
+            activation=tf.nn.relu,
+            name='score_embed'
+        )
+
+        # Fuse score information and feature information
         score_feat = score_embed + features
 
+        # Transformer refinement
         refined_feat = lightweight_global_transformer(
             score_feat,
             name='score_global_refine',
-            sample_size=256
+            sample_size=128   # 建議先從 128，不要一開始 256
         )
 
-        refined_score = tf.layers.dense(refined_feat, 1, name='score_out')
-        refined_score = tf.nn.softplus(refined_score)
+        # Predict residual score modulation
+        delta = tf.layers.dense(refined_feat, 1, name='score_delta')
+        delta = tf.nn.tanh(delta)
+
+        # Residual refinement, do not replace original score
+        lambda_score = 0.1
+        refined_score = score * (1.0 + lambda_score * delta)
+
+        # Avoid negative or unstable score
+        refined_score = tf.maximum(refined_score, 1e-6)
 
         return refined_score
 
@@ -278,7 +294,7 @@ def assemble_FCNN_blocks(inputs, config, dropout_prob):
     descriptor_features = lightweight_global_transformer(
         backup_features,
         name='descriptor_branch_transformer',
-        sample_size=256
+        sample_size=128
     )
 
     # Detector Branch

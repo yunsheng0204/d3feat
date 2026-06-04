@@ -24,7 +24,7 @@ python evaluate_kitti_our.py D3Feat D3Feat_snapshots-pred512
 
 # 改 snapshots 名稱
 cd /home/code-server/D3Feat/geometric_registration_kitti
-mv D3Feat_snapshots-pred512 D3Feat_snapshots-pred512-level2-new
+mv D3Feat_snapshots-pred512 D3Feat_snapshots-pred512-our
 cd ..
 
 KITTI
@@ -106,6 +106,17 @@ Average Repeatability at num_keypts = 256: 0.2375633445945946
 Average Repeatability at num_keypts = 512: 0.29299690315315313
 
 
+Transformer
+Total loss: 0.0, RTE: 0.674492738850705, var: 0.2679296011931562, RRE: 1.6462720139339426, var: 1.6127493853205164, Success: 53.0 / 555 (9.54954954954955 %)
+Num_test 555
+Average Repeatability at num_keypts = 4: 0.027477477477477478
+Average Repeatability at num_keypts = 8: 0.038513513513513516
+Average Repeatability at num_keypts = 16: 0.05439189189189189
+Average Repeatability at num_keypts = 32: 0.07060810810810811
+Average Repeatability at num_keypts = 64: 0.09622747747747748
+Average Repeatability at num_keypts = 128: 0.13255912162162162
+Average Repeatability at num_keypts = 256: 0.17231841216216215
+Average Repeatability at num_keypts = 512: 0.22553842905405405
 
 
 Oxford
