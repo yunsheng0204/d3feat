@@ -55,34 +55,39 @@ def local_self_attention(features, neighbors, name='local_self_attention'):
 ### edited by yunsheng LEVEL2
 
 ### edited by yunsheng Transformer
-def lightweight_global_transformer(features, name='global_transformer', sample_size=256):
+### edited by yunsheng Transformer
+def full_global_transformer(features, stack_lengths, name='full_global_transformer'):
     """
-    Lightweight global transformer refinement.
-    Avoid full N x N attention by using sampled global tokens.
+    Full global transformer refinement.
     features: [N, C]
+    stack_lengths: [first_pcd_length, second_pcd_length]
     """
-
     with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
-        N = tf.shape(features)[0]
         C = features.get_shape()[-1].value
 
-        sample_size = tf.minimum(sample_size, N)
-        idx = tf.cast(
-            tf.linspace(0.0, tf.cast(N - 1, tf.float32), sample_size),
-            tf.int32
-        )
+        q = tf.layers.dense(features, C, name='q_fc')  # [N, C]
+        k = tf.layers.dense(features, C, name='k_fc')  # [N, C]
+        v = tf.layers.dense(features, C, name='v_fc')  # [N, C]
 
-        global_tokens = tf.gather(features, idx)  # [M, C]
+        # 核心修正：避免 Source 和 Target 點雲特徵互相污染，必須拆開計算 Attention
+        len_0 = stack_lengths[0]
+        len_1 = stack_lengths[1]
 
-        q = tf.layers.dense(features, C, name='q_fc')         # [N, C]
-        k = tf.layers.dense(global_tokens, C, name='k_fc')    # [M, C]
-        v = tf.layers.dense(global_tokens, C, name='v_fc')    # [M, C]
+        q0, q1 = tf.split(q, [len_0, len_1], axis=0)
+        k0, k1 = tf.split(k, [len_0, len_1], axis=0)
+        v0, v1 = tf.split(v, [len_0, len_1], axis=0)
 
-        attn_logits = tf.matmul(q, k, transpose_b=True)
-        attn_logits = attn_logits / tf.sqrt(tf.cast(C, tf.float32))
+        def _self_attention(q_split, k_split, v_split):
+            attn_logits = tf.matmul(q_split, k_split, transpose_b=True)
+            attn_logits = attn_logits / tf.sqrt(tf.cast(C, tf.float32))
+            attn = tf.nn.softmax(attn_logits, axis=-1)
+            return tf.matmul(attn, v_split)
 
-        attn = tf.nn.softmax(attn_logits, axis=-1)
-        global_context = tf.matmul(attn, v)  # [N, C]
+        global_context_0 = _self_attention(q0, k0, v0)
+        global_context_1 = _self_attention(q1, k1, v1)
+        
+        # 重新合併回原本的 Batch 結構
+        global_context = tf.concat([global_context_0, global_context_1], axis=0)
 
         gamma = tf.get_variable(
             'gamma',
@@ -92,53 +97,42 @@ def lightweight_global_transformer(features, name='global_transformer', sample_s
         )
 
         out = features + gamma * global_context
-        out = tf.layers.dense(out, C, activation=tf.nn.relu, name='ffn_1')
-        out = tf.layers.dense(out, C, name='ffn_2')
-        out = features + gamma * out
+        
+        # FFN Block 強化特徵表達
+        ffn = tf.layers.dense(out, C, activation=tf.nn.relu, name='ffn_1')
+        ffn = tf.layers.dense(ffn, C, name='ffn_2')
+        out = out + gamma * ffn
         out = tf.nn.l2_normalize(out, axis=1, epsilon=1e-10)
 
         return out
 
 
-def score_transformer_refinement(score, features, name='score_transformer'):
+def score_transformer_refinement(score, features, stack_lengths, name='score_transformer'):
     """
-    Detector branch score refinement.
+    Detector branch score refinement (Feature-aware Score Refinement).
     score: [N, 1]
     features: [N, C]
     """
-
     with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
         C = features.get_shape()[-1].value
 
-        # Embed initial score
-        score_embed = tf.layers.dense(
-            score, C,
-            activation=tf.nn.relu,
-            name='score_embed'
+        # 1. 根據架構圖：融合 Initial Scores 與 Dense Features
+        score_embed = tf.layers.dense(score, C, activation=tf.nn.relu, name='score_embed')
+        fused_feat = score_embed + features
+
+        # 2. 通過 Transformer Encoder (Global Attention) 提取全局感受野
+        refined_feat = full_global_transformer(
+            fused_feat, 
+            stack_lengths, 
+            name='score_global_refine'
         )
 
-        # Fuse score information and feature information
-        score_feat = score_embed + features
-
-        # Transformer refinement
-        refined_feat = lightweight_global_transformer(
-            score_feat,
-            name='score_global_refine',
-            sample_size=128   # 建議先從 128，不要一開始 256
-        )
-
-        # Predict residual score modulation
-        delta = tf.layers.dense(refined_feat, 1, name='score_delta')
-        delta = tf.nn.tanh(delta)
-
-        # Residual refinement, do not replace original score
-        lambda_score = 0.1
-        refined_score = score * (1.0 + lambda_score * delta)
-
-        # Avoid negative or unstable score
-        refined_score = tf.maximum(refined_score, 1e-6)
+        # 3. 預測並輸出 Refined Score (使用 softplus 確保分數恆正)
+        refined_score = tf.layers.dense(refined_feat, 1, name='score_out')
+        refined_score = tf.math.softplus(refined_score) 
 
         return refined_score
+### edited by yunsheng Transformer
 
 
 ### edited by yunsheng Transformer
@@ -289,27 +283,31 @@ def assemble_FCNN_blocks(inputs, config, dropout_prob):
     # return backup_features, score
 
     ### edited by yunsheng Transformer
-
-    # Descriptor Branch
-    descriptor_features = lightweight_global_transformer(
+    
+    # 1. Descriptor Branch (Feature Branch)
+    descriptor_features = full_global_transformer(
         backup_features,
-        name='descriptor_branch_transformer',
-        sample_size=128
+        statcked_length,
+        name='descriptor_branch_transformer'
     )
 
-    # Detector Branch
+    # 2. Detector Branch (Score Branch)
+    # 取消註解並傳入 statcked_length 以對齊架構圖
     refined_score = score_transformer_refinement(
         score,
-        features[:-1, :],   # non descriptor_features
+        backup_features,
+        statcked_length,
         name='detector_branch_transformer'
     )
 
-    # Attention-guided Score Refinement
+    # 3. Attention-Guided Score Refinement
     with tf.variable_scope('attention_guided_score_refinement'):
-        attn = tf.layers.dense(descriptor_features, 1, name='attn_fc')
-        attn = tf.nn.sigmoid(attn)
+        # MLP 生成 Attention Weights W
+        attn_weights = tf.layers.dense(descriptor_features, 1, name='attn_fc')
+        attn_weights = tf.nn.sigmoid(attn_weights)
 
-    final_score = refined_score * attn
+    # 4. 輸出最終增強特徵與分數
+    final_score = refined_score * attn_weights
 
     return descriptor_features, final_score
     ### edited by yunsheng Transformer
