@@ -1,0 +1,373 @@
+git remote -v
+git add .
+git commit -m ""
+git push yunsheng master
+
+export PYTHONPATH=/home/code-server/D3Feat:$PYTHONPATH
+
+conda activate D3Feat
+cd D3Feat
+
+watch -n 1 nvidia-smi
+export LD_LIBRARY_PATH=/opt/conda/envs/D3Feat/lib:$LD_LIBRARY_PATH
+CUDA_VISIBLE_DEVICES=?   python training_KITTI.py
+
+去 test_kitti.py 內 改 Log 路徑
+chosen_log = 'results_kitti/ ' 
+
+
+python test_kitti.py
+cd /home/code-server/D3Feat/geometric_registration_kitti
+mv snapshots-pred512 D3Feat_snapshots-pred512
+cd ../repeatability
+python evaluate_kitti_our.py D3Feat D3Feat_snapshots-pred512
+
+# 改 snapshots 名稱
+cd /home/code-server/D3Feat/geometric_registration_kitti
+mv D3Feat_snapshots-pred512 D3Feat_snapshots-pred512-our
+cd ..
+
+KITTI
+
+origin
+Num_test 555
+Total loss: 0.0, RTE: 0.5437892297950556, var: 0.14847792430866769, RRE: 1.6093077628802461, var: 1.467908223461634, Success: 47.0 / 555 (8.468468468468467 %)
+
+Average Repeatability at num_keypts = 4: 0.008558558558558558
+Average Repeatability at num_keypts = 8: 0.01418918918918919
+Average Repeatability at num_keypts = 16: 0.018355855855855856
+Average Repeatability at num_keypts = 32: 0.028885135135135135
+Average Repeatability at num_keypts = 64: 0.04017454954954955
+Average Repeatability at num_keypts = 128: 0.058248873873873876
+Average Repeatability at num_keypts = 256: 0.08595861486486486
+Average Repeatability at num_keypts = 512: 0.13115850225225226
+
+
+LEVEL1
+Total loss: 0.0, RTE: 0.4431969359204287, var: 0.16272201184378718, RRE: 1.7006744869891628, var: 1.6776326035282771, Success: 102.0 / 555 (18.37837837837838 %)
+Average Repeatability at num_keypts = 4: 0.021621621621621623
+Average Repeatability at num_keypts = 8: 0.02927927927927928
+Average Repeatability at num_keypts = 16: 0.04279279279279279
+Average Repeatability at num_keypts = 32: 0.06064189189189189
+Average Repeatability at num_keypts = 64: 0.08578265765765766
+Average Repeatability at num_keypts = 128: 0.12307150900900901
+Average Repeatability at num_keypts = 256: 0.16744791666666667
+Average Repeatability at num_keypts = 512: 0.2168989301801802
+
+
+LEVEL2
+Total loss: 0.0, RTE: 0.5596550124195906, var: 0.21834517109287954, RRE: 1.7341215004436412, var: 1.6372998169489454, Success: 137.0 / 555 (24.684684684684687 %)
+Num_test 555
+Average Repeatability at num_keypts = 4: 0.03153153153153153
+Average Repeatability at num_keypts = 8: 0.052477477477477476
+Average Repeatability at num_keypts = 16: 0.07702702702702703
+Average Repeatability at num_keypts = 32: 0.10777027027027027
+Average Repeatability at num_keypts = 64: 0.1454391891891892
+Average Repeatability at num_keypts = 128: 0.18795045045045045
+Average Repeatability at num_keypts = 256: 0.2375633445945946
+Average Repeatability at num_keypts = 512: 0.29299690315315313
+
+
+Transformer
+Total loss: 0.0, RTE: 0.4492738850705, var: 0.2679296011931562, RRE: 1.6462720139339426, var: 1.6127493853205164, Success: 53.0 / 555 (9.54954954954955 %)
+Num_test 555
+Average Repeatability at num_keypts = 4: 0.067477477477477478
+Average Repeatability at num_keypts = 8: 0.088513513513513516
+Average Repeatability at num_keypts = 16: 0.10439189189189189
+Average Repeatability at num_keypts = 32: 0.14060810810810811
+Average Repeatability at num_keypts = 64: 0.18622747747747748
+Average Repeatability at num_keypts = 128: 0.23255912162162162
+Average Repeatability at num_keypts = 256: 0.29231841216216215
+Average Repeatability at num_keypts = 512: 0.37553842905405405
+
+
+PARE:
+Total loss: 0.0, RTE: 0.5408191994896957, var: 0.13757092355110162, RRE: 1.7569984828647556, var: 1.552964040069671, Success: 70.0 / 555 (12.612612612612612 %)
+
+Num_test 555
+Average Repeatability at num_keypts = 4: 0.01126126126126126
+Average Repeatability at num_keypts = 8: 0.017342342342342342
+Average Repeatability at num_keypts = 16: 0.030292792792792792
+Average Repeatability at num_keypts = 32: 0.04054054054054054
+Average Repeatability at num_keypts = 64: 0.05810810810810811
+Average Repeatability at num_keypts = 128: 0.08261542792792793
+Average Repeatability at num_keypts = 256: 0.12015765765765765
+Average Repeatability at num_keypts = 512: 0.17231489301801803
+
+
+RoITr:
+Total loss: 0.0, RTE: 0.5311474579749471, var: 0.15408400131580635, RRE: 1.7252503086766318, var: 1.6543102235408518, Success: 92.0 / 555 (16.576576576576578 %)
+
+Num_test 555
+Average Repeatability at num_keypts = 4: 0.009009009009009009
+Average Repeatability at num_keypts = 8: 0.01509009009009009
+Average Repeatability at num_keypts = 16: 0.024436936936936937
+Average Repeatability at num_keypts = 32: 0.03620495495495495
+Average Repeatability at num_keypts = 64: 0.057629504504504506
+Average Repeatability at num_keypts = 128: 0.08700731981981982
+Average Repeatability at num_keypts = 256: 0.13236204954954955
+Average Repeatability at num_keypts = 512: 0.19954954954954954
+
+
+-----------------------------------------------------------------------------------------------------------
+
+Oxford
+cd /home/code-server/D3Feat
+watch -n 1 nvidia-smi
+export LD_LIBRARY_PATH=/opt/conda/envs/D3Feat/lib:$LD_LIBRARY_PATH
+CUDA_VISIBLE_DEVICES=?   python training_oxford.py
+去 test_oxford.py 內 改 Log 路徑
+chosen_log = 'results_kitti/ ' 
+python test_oxford.py
+cd /home/code-server/D3Feat/repeatability
+python evaluate_oxford.py test snapshots-pred512
+cd /home/code-server/D3Feat/geometric_registration_kitti
+mv snapshots-pred512 D3Feat_snapshots-pred512-Qxford-our-gemini
+cd ..
+
+
+original
+
+Total loss: 0.0, RTE: 0.11712661487035803, var: 0.004333094576203294, RRE: 0.22389116755820201, var: 0.051843709994143256, Success: 96.0 / 96 (100.0 %)
+
+Num_test 96
+Anc points: 96
+Average Repeatability at num_keypts = 4: 0.3958333333333333
+Average Repeatability at num_keypts = 8: 0.4375
+Average Repeatability at num_keypts = 16: 0.4791666666666667
+Average Repeatability at num_keypts = 32: 0.58203125
+Average Repeatability at num_keypts = 64: 0.6640625
+Average Repeatability at num_keypts = 128: 0.769775390625
+Average Repeatability at num_keypts = 256: 0.8142496744791666
+Average Repeatability at num_keypts = 512: 0.7148844401041666
+
+LEVEL1
+Total loss: 0.0, RTE: 0.11305444448104633, var: 0.003942076903355575, RRE: 0.21619226921298654, var: 0.03509252244118004, Success: 96.0 / 96 (100.0 %)
+
+Average Repeatability at num_keypts = 4: 0.5338541666666666
+Average Repeatability at num_keypts = 8: 0.6575520833333334
+Average Repeatability at num_keypts = 16: 0.7571614583333334
+Average Repeatability at num_keypts = 32: 0.8424479166666666
+Average Repeatability at num_keypts = 64: 0.9153645833333334
+Average Repeatability at num_keypts = 128: 0.8456217447916666
+Average Repeatability at num_keypts = 256: 0.7980550130208334
+Average Repeatability at num_keypts = 512: 0.6980794270833334
+
+LEVEL2
+Total loss: 0.0, RTE: 0.11755466094230844, var: 0.005388644980134822, RRE: 0.22839658297215626, var: 0.03790124692600826, Success: 96.0 / 96 (100.0 %)
+Num_test 96
+Anc points: 96
+Average Repeatability at num_keypts = 4: 0.546875
+Average Repeatability at num_keypts = 8: 0.6848958333333334
+Average Repeatability at num_keypts = 16: 0.8020833333333334
+Average Repeatability at num_keypts = 32: 0.9072265625
+Average Repeatability at num_keypts = 64: 0.9156901041666666
+Average Repeatability at num_keypts = 128: 0.873046875
+Average Repeatability at num_keypts = 256: 0.81787109375
+Average Repeatability at num_keypts = 512: 0.7042643229166666
+
+Transformer
+Total loss: 0.0, RTE: 0.10968882952753727, var: 0.004131323706357794, RRE: 0.19797532756820999, var: 0.032951527813869994, Success: 96.0 / 96 (100.0 %) (pass)
+Average Repeatability at num_keypts = 4: 0.7421875
+Average Repeatability at num_keypts = 8: 0.83984375
+Average Repeatability at num_keypts = 16: 0.9127604166666666
+Average Repeatability at num_keypts = 32: 0.9602864583333334
+Average Repeatability at num_keypts = 64: 0.8927408854166666
+Average Repeatability at num_keypts = 128: 0.8202311197916666
+Average Repeatability at num_keypts = 256: 0.7905680338541666
+Average Repeatability at num_keypts = 512: 0.6965738932291666
+
+
+PARE:
+Total loss: 0.0, RTE: 0.13025609984209663, var: 0.026022384042333552, RRE: 0.2728697998589658, var: 0.13784643775946195, Success: 95.0 / 96 (98.95833333333334 %)
+Num_test 96
+Anc points: 96
+Average Repeatability at num_keypts = 4: 0.3333333333333333
+Average Repeatability at num_keypts = 8: 0.3984375
+Average Repeatability at num_keypts = 16: 0.44140625
+Average Repeatability at num_keypts = 32: 0.5302734375
+Average Repeatability at num_keypts = 64: 0.6529947916666666
+Average Repeatability at num_keypts = 128: 0.7655436197916666
+Average Repeatability at num_keypts = 256: 0.8193766276041666
+Average Repeatability at num_keypts = 512: 0.7166341145833334
+
+
+RoITr:
+
+Total loss: 0.0, RTE: 0.14032689287110275, var: 0.02367398007563469, RRE: 0.44345716756614123, var: 0.47068392767849543, Success: 88.0 / 96 (91.66666666666666 %)
+Num_test 96
+Anc points: 96
+Average Repeatability at num_keypts = 4: 0.3229166666666667
+Average Repeatability at num_keypts = 8: 0.4388020833333333
+Average Repeatability at num_keypts = 16: 0.515625
+Average Repeatability at num_keypts = 32: 0.595703125
+Average Repeatability at num_keypts = 64: 0.6806640625
+Average Repeatability at num_keypts = 128: 0.7621256510416666
+Average Repeatability at num_keypts = 256: 0.7977294921875
+Average Repeatability at num_keypts = 512: 0.6988321940104166
+
+-----------------------------------------------------------------------------------------------------------
+
+
+
+
+ETH
+nvidia-smi
+export CUDA_VISIBLE_DEVICES=?
+去 test_eth.py 內 改 Log 路徑
+chosen_log = 'results_kitti/ ' 
+python test_eth.py
+改 Log 名稱
+mv geometric_registration/D3Feat_115020 geometric_registration_eth/D3Feat_ROITR-s-200-pred
+cd /home/code-server/D3Feat/geometric_registration_eth
+python evaluate_eth.py D3Feat ROITR-s-200-pred
+
+
+origin
+
+Avergae Matching Recall: 71.10799438990182%
+All 8 scene, average recall: 75.04168797953965%
+All 8 scene, average num inliers: 4.855572477544064
+All 8 scene, average num inliers ratio: 0.40558550042039904
+
+
+Level1
+
+Avergae Matching Recall: 75.5960729312763%
+All 8 scene, average recall: 79.12975026327666%
+All 8 scene, average num inliers: 6.3355334954852065
+All 8 scene, average num inliers ratio: 0.46656707181852497
+
+
+LEVEL2
+
+Avergae Matching Recall: 66.19915848527349%
+All 8 scene, average recall: 70.78196930946292%
+All 8 scene, average num inliers: 5.681386577841969
+All 8 scene, average num inliers ratio: 0.639967164094744
+
+
+
+
+PARE:
+
+Avergae Matching Recall: 78.26086956521739%
+All 8 scene, average recall: 81.26998646005717%
+All 8 scene, average num inliers: 7.355807928255176
+All 8 scene, average num inliers ratio: 0.47333950816824594
+
+
+
+
+RoITr:
+All 8 scene, average recall: 84.05189559199638%
+All 8 scene, average num inliers: 6.205494010578327
+All 8 scene, average num inliers ratio: 0.45399681234529543
+
+
+
+-----------------------------------------------------------------------------------------------------------
+
+
+
+PARE:
+
+KITTI:
+cd /home/code-server/D3Feat
+watch -n 1 nvidia-smi
+export LD_LIBRARY_PATH=/opt/conda/envs/D3Feat/lib:$LD_LIBRARY_PATH
+CUDA_VISIBLE_DEVICES=?   python training_KITTI_pare_lite.py
+cd /home/code-server/D3Feat
+python test_kitti_pare_lite.py
+cd /home/code-server/D3Feat/geometric_registration_kitti
+mv D3Feat_KITTI_PARE_你的log名稱-pred512 snapshots-pred512
+
+cd ../repeatability
+python evaluate_kitti_our.py D3Feat D3Feat_snapshots-pred512
+cd /home/code-server/D3Feat/geometric_registration_kitti
+mv snapshots-pred512 D3Feat_snapshots-pred512-KITTI-training-pare
+cd ..
+
+
+Oxford:
+
+cd /home/code-server/D3Feat
+watch -n 1 nvidia-smi
+export LD_LIBRARY_PATH=/opt/conda/envs/D3Feat/lib:$LD_LIBRARY_PATH
+CUDA_VISIBLE_DEVICES=?   python training_oxford_pare.py
+cd /home/code-server/D3Feat
+python test_oxford_pare.py
+cd /home/code-server/D3Feat/repeatability
+python evaluate_oxford.py test snapshots-pred512
+# 接著改名：
+cd /home/code-server/D3Feat/geometric_registration_kitti
+mv snapshots-pred512 D3Feat_snapshots-pred512-Oxford-training-pare-30
+cd ..
+
+
+
+
+roitr:
+
+
+KITTI:
+cd /home/code-server/D3Feat
+python training_KITTI_roitr_lite.py
+
+# 改LOG
+python test_kitti_roitr_lite.py
+
+cd /home/code-server/D3Feat/geometric_registration_kitti
+mv snapshots-pred512 D3Feat_snapshots-pred512-KITTI-roitr-lite
+
+cd ../repeatability
+export PYTHONPATH=/home/code-server/D3Feat:$PYTHONPATH
+python evaluate_kitti_our.py D3Feat D3Feat_snapshots-pred512-KITTI-roitr-lite
+
+
+Oxford:
+
+
+cd /home/code-server/D3Feat
+python training_oxford_roitr_lite.py
+
+# 改LOG
+python test_oxford_roitr_lite.py
+
+cd /home/code-server/D3Feat/repeatability
+export PYTHONPATH=/home/code-server/D3Feat:$PYTHONPATH
+python evaluate_oxford.py test snapshots-pred512
+
+# 改名
+cd /home/code-server/D3Feat/geometric_registration_kitti
+mv snapshots-pred512 D3Feat_snapshots-pred512-Oxford-roitr-lite
+
+
+
+ETH:
+
+
+
+
+
+
+nvidia-smi
+nvtop
+export CUDA_VISIBLE_DEVICES=0,1
+
+conda create -n D3Feat python=3.6 -y
+conda activate D3Feat
+conda install -c open3d-admin open3d=0.7.0.0
+pip install tensorflow-gpu==1.15
+pip install numpy scipy scikit-learn
+apt-get update
+apt-get install -y libgl1
+apt-get install -y libglib2.0-0 libsm6 libxext6 libxrender1
+export PYTHONPATH=/home/code-server/D3Feat:$PYTHONPATH
+conda install psutil -y
+apt install -y nvtop
+conda install -c anaconda cudatoolkit=10.0 cudnn=7 -y
+export LD_LIBRARY_PATH=/opt/conda/envs/D3Feat/lib:$LD_LIBRARY_PATH
+
+
+python plot.py

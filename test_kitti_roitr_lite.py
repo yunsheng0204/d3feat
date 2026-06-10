@@ -6,7 +6,7 @@ import numpy as np
 # My libs
 from utils.config import Config
 from utils.tester import ModelTester
-from models.KPFCNN_model import KernelPointFCNN
+from models.KPFCNN_model_kitti_roitr_lite import KernelPointFCNN
 
 # Datasets
 from datasets.KITTI import KITTIDataset
@@ -101,8 +101,8 @@ if __name__ == '__main__':
     # chosen_log = 'last_KITTI'
 
     ## edited by yunsheng log path
-    chosen_log = 'results_kitti/D3Feat_KITTI_20260605_182022_our'
-    # chosen_log = 'results_kitti/Log_11011605'
+    chosen_log = None
+    # chosen_log = None
     chosen_snapshot = -1
     on_val = True
 
@@ -126,13 +126,14 @@ if __name__ == '__main__':
     # chosen_log = `results_kitti/Log_`
 
     if chosen_log is None:
-        logs = np.sort([os.path.join('results_kitti', f) for f in os.listdir('results_kitti') if f.startswith('Log')])
-        for log in logs[::-1]:
-            log_config = Config()
-            log_config.load(log)
-            if log_config.dataset.startswith(test_dataset):
-                chosen_log = log
-                break
+        logs = np.sort([
+            os.path.join('results_kitti', f)
+            for f in os.listdir('results_kitti')
+            if f.startswith('D3Feat_KITTI_ROITR_LITE_')
+        ])
+        if len(logs) == 0:
+            raise ValueError('No RoITr-Lite KITTI log found under results_kitti/D3Feat_KITTI_ROITR_LITE_*')
+        chosen_log = logs[-1]
 
     # Check if log exists
     if not os.path.exists(chosen_log):

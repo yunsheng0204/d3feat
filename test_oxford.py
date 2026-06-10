@@ -106,7 +106,7 @@ if __name__ == '__main__':
 
     ## edited by yunsheng log path
     # chosen_log = 'results_oxford/D3Feat_Oxford_20260518_105952_level1_30'
-    chosen_log = 'results_oxford/D3Feat_Oxford_20260604_171326'
+    chosen_log = 'results_oxford/D3Feat_Oxford_20260606_132219_test'
     
     chosen_snapshot = -1
     on_val = True
