@@ -29,6 +29,12 @@ cd ..
 
 KITTI
 
+Number of point clouds: 43552
+Average points: 121660.56722997795
+Max points: 129392
+Min points: 82602
+
+
 origin
 Num_test 555
 Total loss: 0.0, RTE: 0.5437892297950556, var: 0.14847792430866769, RRE: 1.6093077628802461, var: 1.467908223461634, Success: 47.0 / 555 (8.468468468468467 %)
@@ -112,6 +118,12 @@ Average Repeatability at num_keypts = 512: 0.19954954954954954
 -----------------------------------------------------------------------------------------------------------
 
 Oxford
+
+Number of point clouds: 637
+Average points: 25212.532182103612
+Max points: 27578
+Min points: 20724
+
 cd /home/code-server/D3Feat
 watch -n 1 nvidia-smi
 export LD_LIBRARY_PATH=/opt/conda/envs/D3Feat/lib:$LD_LIBRARY_PATH
@@ -212,6 +224,13 @@ Average Repeatability at num_keypts = 512: 0.6988321940104166
 
 
 ETH
+
+Number of point clouds: 132
+Average points: 100625.2803030303
+Max points: 123547
+Min points: 64362
+
+
 nvidia-smi
 export CUDA_VISIBLE_DEVICES=?
 去 test_eth.py 內 改 Log 路徑
